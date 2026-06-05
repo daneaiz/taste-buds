@@ -413,6 +413,33 @@
 
   .list-items { display: flex; flex-direction: column; gap: 2px; }
   .list-item {
+    cursor: pointer;
+  }
+  .list-item.done .list-item-name {
+    text-decoration: line-through;
+    color: var(--muted);
+  }
+  .list-item.done .list-item-from {
+    color: var(--faint);
+  }
+  .list-item.done {
+    opacity: 0.6;
+  }
+  .list-item-check {
+    width: 18px; height: 18px; flex-shrink: 0;
+    border-radius: 3px;
+    border: 1.5px solid var(--line2);
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.12s, border-color 0.12s;
+    background: transparent;
+  }
+  .list-item.done .list-item-check {
+    background: var(--muted);
+    border-color: var(--muted);
+  }
+  .list-item-check svg { display: none; }
+  .list-item.done .list-item-check svg { display: block; }
+  .list-item {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -636,7 +663,7 @@
       <div class="list-header">
         <h1 class="page-title" style="margin-bottom:0;">My List</h1>
         <div class="list-actions">
-          <button class="list-action-btn highlight" id="copy-btn" onclick="copyList()">Copy</button>
+          <button class="list-action-btn highlight" id="copy-btn" onclick="copyList()" style="display:none;">Copy</button>
         </div>
       </div>
       <div id="list-body"></div>
@@ -764,6 +791,7 @@ const DATA = {
 let selCat = null, selSub = null, selColor = '#f0ead8';
 let checked = new Set();
 let shopList = []; // [{name, cat, sub, color}]
+let doneItems = new Set();
 let currentTab = 'explore';
 let currentScreen = 'cats';
 
@@ -955,49 +983,81 @@ function clearSel() {
 function addToList() {
   if (!checked.size) return;
   let added = 0;
-  const existing = new Set(shopList.map(x => x.name));
   checked.forEach(name => {
-    if (!existing.has(name)) {
-      shopList.push({ name, cat: selCat, sub: selSub, color: selColor });
-      added++;
-    }
+    shopList.push({ name, cat: selCat, sub: selSub, color: selColor });
+    added++;
   });
   checked.clear();
   updateAddBtn();
   renderIngs();
   updateBadge();
-  showToast(added > 0 ? `${added} added to list` : 'Already in your list');
+  showToast(`${added} added to list`);
 }
 
 // ── Shopping list ──
 function renderList() {
   const body = document.getElementById('list-body');
   const clearWrap = document.getElementById('list-clear-wrap');
+  const copyBtn = document.getElementById('copy-btn');
   if (shopList.length === 0) {
     body.innerHTML = `<div class="empty-state"><div class="empty-icon">∅</div><div class="empty-msg">Your list is empty.<br>Explore ingredients and add them here.</div></div>`;
     clearWrap.style.display = 'none';
+    copyBtn.style.display = 'none';
     return;
   }
   clearWrap.style.display = 'block';
-  // Group by category
+  copyBtn.style.display = 'inline-block';
+  // Group by category, dedupe by name, collect all subs
   const groups = {};
   shopList.forEach(item => {
-    if (!groups[item.cat]) groups[item.cat] = [];
-    groups[item.cat].push(item);
+    if (!groups[item.cat]) groups[item.cat] = { color: item.color, items: {} };
+    const key = item.name;
+    if (!groups[item.cat].items[key]) {
+      groups[item.cat].items[key] = { name: item.name, color: item.color, subs: [] };
+    }
+    if (!groups[item.cat].items[key].subs.includes(item.sub)) {
+      groups[item.cat].items[key].subs.push(item.sub);
+    }
   });
   body.innerHTML = '';
-  Object.entries(groups).forEach(([cat, items]) => {
-    const g = document.createElement('div');
-    g.className = 'list-group';
-    g.innerHTML = `<div class="list-group-label"><div class="list-group-dot" style="background:${items[0].color};"></div>${cat}</div><div class="list-items" id="grp-${cat.replace(/\s/g,'_')}"></div>`;
-    body.appendChild(g);
-    const grpEl = document.getElementById(`grp-${cat.replace(/\s/g,'_')}`);
-    items.forEach(item => {
+  Object.entries(groups).forEach(([cat, g]) => {
+    const catEl = document.createElement('div');
+    catEl.className = 'list-group';
+    const catLabel = document.createElement('div');
+    catLabel.className = 'list-group-label';
+    catLabel.innerHTML = `<div class="list-group-dot" style="background:${g.color};"></div>${cat}`;
+    catEl.appendChild(catLabel);
+    const itemsWrap = document.createElement('div');
+    itemsWrap.className = 'list-items';
+    Object.values(g.items).forEach(item => {
       const row = document.createElement('div');
       row.className = 'list-item';
-      row.innerHTML = `<div class="list-item-name">${item.name}</div><div class="list-item-from">${item.sub}</div><button class="list-item-del" onclick="removeItem('${item.name.replace(/'/g,"\\'")}')">×</button>`;
-      grpEl.appendChild(row);
+      const fromLabel = (item.subs || [item.sub]).join(', ');
+      const isDone = doneItems.has(item.name);
+      if (isDone) row.classList.add('done');
+      row.innerHTML = `
+        <div class="list-item-check">
+          <svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="var(--bg)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4l3 3 5-6"/></svg>
+        </div>
+        <div class="list-item-name">${item.name}</div>
+        <div class="list-item-from">${fromLabel}</div>
+        <button class="list-item-del" onclick="event.stopPropagation();removeItem('${item.name.replace(/'/g,"\\'")}')">×</button>`;
+      row.onclick = (function(name) { return function() { toggleDone(name); }; })(item.name);
+      itemsWrap.appendChild(row);
     });
+    catEl.appendChild(itemsWrap);
+    body.appendChild(catEl);
+  });
+}
+
+function toggleDone(name) {
+  if (doneItems.has(name)) doneItems.delete(name);
+  else doneItems.add(name);
+  // Just flip the class on the existing row — no full re-render
+  document.querySelectorAll('.list-item').forEach(function(row) {
+    if (row.querySelector('.list-item-name') && row.querySelector('.list-item-name').textContent === name) {
+      row.classList.toggle('done', doneItems.has(name));
+    }
   });
 }
 
@@ -1032,6 +1092,7 @@ function confirmClear() {
 
 function clearList() {
   shopList = [];
+  doneItems.clear();
   renderList();
   updateBadge();
 }
@@ -1047,10 +1108,11 @@ function copyList() {
 }
 
 function updateBadge() {
-  var badge = document.getElementById('list-badge');
-  if (shopList.length > 0) {
+  const badge = document.getElementById('list-badge');
+  const unique = new Set(shopList.map(x => x.name)).size;
+  if (unique > 0) {
     badge.style.display = 'flex';
-    badge.textContent = shopList.length;
+    badge.textContent = unique;
   } else {
     badge.style.display = 'none';
   }
@@ -1166,40 +1228,96 @@ function renderSearchResults() {
   }
 
   if (searchMode === 'reverse') {
-    var matchKeys = ALL_FLAVOUR_KEYS.filter(function(k) { return k.includes(q); });
-    if (!matchKeys.length) {
-      el.innerHTML = '<p class="search-empty">No flavour found for "' + q + '".</p>';
-      return;
-    }
     el.innerHTML = '';
-    matchKeys.slice(0, 12).forEach(function(key) {
-      var entry = ALL_FLAVOURS[key];
-      var grp = document.createElement('div');
-      grp.className = 'result-group';
-      var labelDiv = document.createElement('div');
-      labelDiv.style.cssText = 'font-size:13px;font-weight:500;color:var(--cream);margin-bottom:6px;';
-      labelDiv.textContent = entry.display;
-      grp.appendChild(labelDiv);
-      entry.pairs.forEach(function(p) {
+    var seen = new Set();
+
+    // 1. Sub name + alias matches — show the subcategory directly
+    var subMatches = [];
+    ALL_SUBS.forEach(function(s) {
+      var key = s.cat + '|' + s.sub;
+      if (s.sub.toLowerCase().includes(q) && !seen.has(key)) {
+        seen.add(key); subMatches.push(s);
+      }
+    });
+    Object.keys(SUB_ALIASES).forEach(function(alias) {
+      if (alias.includes(q)) {
+        var subName = SUB_ALIASES[alias];
+        ALL_SUBS.forEach(function(s) {
+          var key = s.cat + '|' + s.sub;
+          if (s.sub === subName && !seen.has(key)) {
+            seen.add(key); subMatches.push(s);
+          }
+        });
+      }
+    });
+
+    if (subMatches.length) {
+      var hdr = document.createElement('div');
+      hdr.className = 'result-group-label';
+      hdr.style.marginBottom = '8px';
+      hdr.textContent = 'Ingredient';
+      el.appendChild(hdr);
+      subMatches.forEach(function(s) {
         var card = document.createElement('div');
         card.className = 'result-card';
-        card.style.borderLeft = '3px solid ' + p.color;
+        card.style.borderLeft = '3px solid ' + s.color;
         var title = document.createElement('div');
         title.className = 'result-card-title';
-        title.textContent = p.sub;
+        title.textContent = s.sub;
         var catLabel = document.createElement('div');
         catLabel.className = 'result-card-sub';
-        catLabel.textContent = p.cat;
+        catLabel.textContent = s.cat + ' · ' + s.ings.length + ' complementary flavours';
         card.appendChild(title);
         card.appendChild(catLabel);
-        card.onclick = (function(p) { return function() {
-          selCat = p.cat; selColor = p.color; selSub = p.sub; checked = new Set();
+        card.onclick = (function(s) { return function() {
+          selCat = s.cat; selColor = s.color; selSub = s.sub; checked = new Set();
           goToIng();
-        }; })(p);
-        grp.appendChild(card);
+        }; })(s);
+        el.appendChild(card);
       });
-      el.appendChild(grp);
-    });
+    }
+
+    // 2. Flavour key matches — show what it pairs with
+    var matchKeys = ALL_FLAVOUR_KEYS.filter(function(k) { return k.includes(q); });
+    if (matchKeys.length) {
+      var hdr2 = document.createElement('div');
+      hdr2.className = 'result-group-label';
+      hdr2.style.cssText = 'margin-bottom:8px; margin-top:' + (subMatches.length ? '20px' : '0') + ';';
+      hdr2.textContent = 'Flavour pairings';
+      el.appendChild(hdr2);
+      matchKeys.slice(0, 12).forEach(function(key) {
+        var entry = ALL_FLAVOURS[key];
+        var grp = document.createElement('div');
+        grp.className = 'result-group';
+        var labelDiv = document.createElement('div');
+        labelDiv.style.cssText = 'font-size:13px;font-weight:500;color:var(--cream);margin-bottom:6px;';
+        labelDiv.textContent = entry.display;
+        grp.appendChild(labelDiv);
+        entry.pairs.forEach(function(p) {
+          var card = document.createElement('div');
+          card.className = 'result-card';
+          card.style.borderLeft = '3px solid ' + p.color;
+          var title = document.createElement('div');
+          title.className = 'result-card-title';
+          title.textContent = p.sub;
+          var catLabel = document.createElement('div');
+          catLabel.className = 'result-card-sub';
+          catLabel.textContent = p.cat;
+          card.appendChild(title);
+          card.appendChild(catLabel);
+          card.onclick = (function(p) { return function() {
+            selCat = p.cat; selColor = p.color; selSub = p.sub; checked = new Set();
+            goToIng();
+          }; })(p);
+          grp.appendChild(card);
+        });
+        el.appendChild(grp);
+      });
+    }
+
+    if (!subMatches.length && !matchKeys.length) {
+      el.innerHTML = '<p class="search-empty">No results found for "' + q + '".</p>';
+    }
   }
 }
 
