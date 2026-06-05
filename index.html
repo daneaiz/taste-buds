@@ -434,23 +434,25 @@
   /* ── Search mode tabs ── */
   .mode-btn {
     flex: 1;
-    padding: 7px 6px;
-    font-size: 11px;
+    padding: 10px 8px;
+    font-size: 12px;
+    font-weight: 500;
     font-family: var(--sans);
     background: var(--bg2);
     border: 1px solid var(--line);
     border-radius: var(--r);
     color: var(--muted);
     cursor: pointer;
-    transition: all 0.12s;
+    transition: all 0.15s;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    letter-spacing: 0.01em;
   }
   .mode-btn.active {
-    background: var(--bg3);
-    border-color: var(--line2);
-    color: var(--cream);
+    background: rgba(232,201,122,0.12);
+    border-color: var(--accent);
+    color: var(--accent);
   }
   @media (hover: hover) { .mode-btn:hover { background: var(--bg3); color: var(--cream); } }
 
@@ -592,11 +594,11 @@
       <div id="search-header" style="margin-bottom:16px;">
         <h1 class="sub-heading" style="margin-bottom:12px;">Search <em class="sub-heading-cat">& Discover</em></h1>
         <!-- Mode tabs -->
-        <div id="search-modes" style="display:flex; gap:6px; margin-bottom:14px;">
-          <button class="mode-btn active" id="mode-search" onclick="setSearchMode('search')">🔍 Find pairings</button>
-          <button class="mode-btn" id="mode-reverse" onclick="setSearchMode('reverse')">🔄 Reverse lookup</button>
+        <div id="search-modes" style="display:flex; gap:6px; margin-bottom:10px;">
+<button class="mode-btn active" id="mode-reverse" onclick="setSearchMode('reverse')">🔄 Reverse lookup</button>
           <button class="mode-btn" id="mode-fridge" onclick="setSearchMode('fridge')">🧊 What's in my fridge?</button>
         </div>
+        <p id="search-mode-desc" style="font-size:12px; color:var(--muted); margin-bottom:12px; line-height:1.5;"></p>
         <!-- Search input -->
         <div id="search-input-wrap" style="position:relative;">
           <input id="search-input" type="text" placeholder="Type an ingredient…" autocomplete="off" autocorrect="off" spellcheck="false"
@@ -1076,7 +1078,7 @@ function exploreOrBack() {
 // ── SEARCH FEATURE ────────────────────────────────────
 // ══════════════════════════════════════════════════════
 
-let searchMode = 'search';
+let searchMode = 'reverse';
 let fridgeItems = new Set();
 
 // Build flat indexes once
@@ -1100,20 +1102,20 @@ const ALL_FLAVOUR_KEYS = Object.keys(ALL_FLAVOURS).sort();
 
 function setSearchMode(mode) {
   searchMode = mode;
-  ['search','reverse','fridge'].forEach(function(m) {
+  ['reverse','fridge'].forEach(function(m) {
     document.getElementById('mode-' + m).classList.toggle('active', m === mode);
   });
   var input = document.getElementById('search-input');
   var fridgeTags = document.getElementById('fridge-tags');
-  if (mode === 'search') {
-    input.placeholder = 'Type an ingredient to see its pairings…';
-    fridgeTags.style.display = 'none';
-  } else if (mode === 'reverse') {
+  var desc = document.getElementById('search-mode-desc');
+  if (mode === 'reverse') {
     input.placeholder = 'Type a flavour (e.g. lemon, garlic)…';
     fridgeTags.style.display = 'none';
+    desc.textContent = 'Type a flavour and see every ingredient it pairs well with.';
   } else {
     input.placeholder = 'Add ingredients you have…';
     fridgeTags.style.display = fridgeItems.size ? 'flex' : 'none';
+    desc.textContent = 'Add what\'s in your fridge and we\'ll suggest what to cook.';
   }
   input.value = '';
   document.getElementById('search-clear').style.display = 'none';
@@ -1121,7 +1123,7 @@ function setSearchMode(mode) {
 }
 
 function onSearchInput() {
-  var val = document.getElementById('search-input').value.trim();
+  var val = document.getElementById('search-input').value.trim().toLowerCase();
   document.getElementById('search-clear').style.display = val ? 'block' : 'none';
   if (searchMode === 'fridge') {
     renderFridgeSuggestions(val);
@@ -1147,83 +1149,7 @@ function renderSearchResults() {
     return;
   }
 
-  if (searchMode === 'search') {
-    var seen = new Set();
-    var matches = [];
-
-    // 1. Direct sub name match (case-insensitive, partial)
-    ALL_SUBS.forEach(function(s) {
-      var key = s.cat + '|' + s.sub;
-      if (s.sub.toLowerCase().includes(q) && !seen.has(key)) {
-        seen.add(key); matches.push(s);
-      }
-    });
-
-    // 2. Alias match — any alias key that partially matches the query
-    Object.keys(SUB_ALIASES).forEach(function(alias) {
-      if (alias.includes(q)) {
-        var subName = SUB_ALIASES[alias];
-        ALL_SUBS.forEach(function(s) {
-          var key = s.cat + '|' + s.sub;
-          if (s.sub === subName && !seen.has(key)) {
-            seen.add(key); matches.push(s);
-          }
-        });
-      }
-    });
-    if (!matches.length) {
-      el.innerHTML = '<p class="search-empty">No ingredients found for "' + q + '".</p>';
-      return;
-    }
-    el.innerHTML = '';
-    var groups = {};
-    matches.forEach(function(m) {
-      if (!groups[m.cat]) groups[m.cat] = { color: m.color, items: [] };
-      groups[m.cat].items.push(m);
-    });
-    Object.entries(groups).forEach(function(entry) {
-      var cat = entry[0], g = entry[1];
-      var grp = document.createElement('div');
-      grp.className = 'result-group';
-      var labelDiv = document.createElement('div');
-      labelDiv.className = 'result-group-label';
-      var dot = document.createElement('div');
-      dot.className = 'result-group-dot';
-      dot.style.background = g.color;
-      labelDiv.appendChild(dot);
-      labelDiv.appendChild(document.createTextNode(cat));
-      grp.appendChild(labelDiv);
-      g.items.forEach(function(m) {
-        var card = document.createElement('div');
-        card.className = 'result-card';
-        card.style.borderLeft = '3px solid ' + m.color;
-        var title = document.createElement('div');
-        title.className = 'result-card-title';
-        title.textContent = m.sub;
-        var sub = document.createElement('div');
-        sub.className = 'result-card-sub';
-        sub.textContent = m.ings.length + ' complementary flavours';
-        var pills = document.createElement('div');
-        pills.className = 'result-card-pills';
-        m.ings.forEach(function(i) {
-          var p = document.createElement('span');
-          p.className = 'result-pill';
-          p.textContent = i;
-          pills.appendChild(p);
-        });
-        card.appendChild(title);
-        card.appendChild(sub);
-        card.appendChild(pills);
-        card.onclick = (function(m) { return function() {
-          selCat = m.cat; selColor = m.color; selSub = m.sub; checked = new Set();
-          goToIng();
-        }; })(m);
-        grp.appendChild(card);
-      });
-      el.appendChild(grp);
-    });
-
-  } else if (searchMode === 'reverse') {
+  if (searchMode === 'reverse') {
     var matchKeys = ALL_FLAVOUR_KEYS.filter(function(k) { return k.includes(q); });
     if (!matchKeys.length) {
       el.innerHTML = '<p class="search-empty">No flavour found for "' + q + '".</p>';
@@ -1477,6 +1403,7 @@ function showToast(msg) {
 renderCats();
 document.getElementById('btn-explore').classList.add('active');
 updateExploreBtn();
+document.getElementById('search-mode-desc').textContent = 'Type a flavour and see every ingredient it pairs well with.';
 </script>
 </body>
 </html>
