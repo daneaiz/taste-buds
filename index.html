@@ -105,7 +105,7 @@
   /* ── Page title ── */
   .page-title {
     font-family: var(--serif);
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 400;
     color: var(--cream);
     letter-spacing: -0.01em;
@@ -175,7 +175,7 @@
   /* ── Sub screen heading ── */
   .sub-heading {
     font-family: var(--serif);
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 400;
     color: var(--cream);
     line-height: 1.1;
@@ -475,6 +475,27 @@
   .empty-msg { font-size: 14px; color: var(--muted); line-height: 1.6; }
 
   /* ── Search mode tabs ── */
+  .mode-icon-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--r);
+    border: 1px solid var(--line);
+    background: var(--bg2);
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
+  }
+  .mode-icon-btn.active {
+    background: rgba(232,201,122,0.12);
+    border-color: var(--accent);
+  }
+  @media (hover: hover) { .mode-icon-btn:hover { background: var(--bg3); } }
+
   .mode-btn {
     flex: 1;
     padding: 10px 8px;
@@ -589,7 +610,7 @@
             <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/>
           </svg>
         </button>
-        <button class="header-icon-btn" id="btn-list" onclick="switchTab('list')" aria-label="My List" style="position:relative;">
+        <button class="header-icon-btn" id="btn-list" onclick="switchTab('list')" aria-label="Shopping List" style="position:relative;">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
             <rect x="9" y="3" width="6" height="4" rx="1"/>
@@ -612,7 +633,7 @@
     <!-- Screen: Subcategories -->
     <div id="screen-subs" class="screen">
 <h1 class="sub-heading">Which <em id="sub-bc-label" class="sub-heading-cat"></em> will you be cooking?</h1>
-      <p class="section-label">Select an ingredient</p>
+      <p class="section-label">Select a main ingredient</p>
       <div class="sub-list" id="sub-list"></div>
     </div>
 
@@ -635,11 +656,13 @@
   <div id="screen-search" style="display:none; flex:1; overflow:hidden; flex-direction:column;">
     <div style="flex:1; overflow-y:auto; padding:16px 20px 12px; scrollbar-width:none;">
       <div id="search-header" style="margin-bottom:16px;">
-        <h1 class="page-title">Search</h1>
-        <!-- Mode tabs -->
-        <div id="search-modes" style="display:flex; gap:6px; margin-bottom:10px;">
-<button class="mode-btn active" id="mode-reverse" onclick="setSearchMode('reverse')">🔄 Reverse lookup</button>
-          <button class="mode-btn" id="mode-fridge" onclick="setSearchMode('fridge')">🧊 What's in my fridge?</button>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+          <h2 id="search-mode-title" class="sub-heading" style="margin-bottom:0; font-size:22px; line-height:1.1;">Reverse Lookup</h2>
+          <div id="search-modes" style="display:flex; gap:6px; flex-shrink:0; margin-left:12px;">
+            <button class="mode-icon-btn active" id="mode-reverse" onclick="setSearchMode('reverse')" aria-label="Reverse lookup">🔄</button>
+            <button class="mode-icon-btn" id="mode-fridge" onclick="setSearchMode('fridge')" aria-label="What's in my fridge?">🧊</button>
+            <button class="mode-icon-btn" id="mode-pairing" onclick="setSearchMode('pairing')" aria-label="What goes well together?">🤝</button>
+          </div>
         </div>
         <p id="search-mode-desc" style="font-size:12px; color:var(--muted); margin-bottom:12px; line-height:1.5;"></p>
         <!-- Search input -->
@@ -652,6 +675,8 @@
         </div>
         <!-- Fridge selected tags -->
         <div id="fridge-tags" style="display:none; flex-wrap:wrap; gap:6px; margin-top:10px;"></div>
+        <!-- Pairing selected tags -->
+        <div id="pairing-tags" style="display:none; flex-wrap:wrap; gap:6px; margin-top:10px;"></div>
       </div>
       <div id="search-results"></div>
     </div>
@@ -661,7 +686,7 @@
   <div id="screen-list" style="display:none; flex:1; overflow:hidden; flex-direction:column;">
     <div id="list-scroll" style="flex:1; overflow-y:auto; padding:16px 20px 12px; scrollbar-width:none;">
       <div class="list-header">
-        <h1 class="page-title" style="margin-bottom:0;">My List</h1>
+        <h1 class="page-title" style="margin-bottom:0;">Shopping List</h1>
         <div class="list-actions">
           <button class="list-action-btn highlight" id="copy-btn" onclick="copyList()" style="display:none;">Copy</button>
         </div>
@@ -683,58 +708,58 @@ const DATA = {
   Seafood: {
     color: '#4a9eda',
     items: {
-      "Caviar": ["Blinis","Chive","Cream","Egg","Lemon","Onion","Sour Cream"],
-      "Clams": ["Avocado","Butter","Chilli","Coriander","Cream","Garlic","Lemon","Parsley","Shallot","Tarragon","Tomato","White Wine"],
-      "Crab": ["Butter","Chilli","Cider","Cream","Garlic","Lemon","Parsley","Saffron","Shallot","Tarragon","Tomato","White Wine"],
-      "Lobster": ["Avocado","Butter","Chilli","Coriander","Cream","Garlic","Lemon","Parsley","Shallot","Tarragon","Tomato","White Wine"],
-      "Mussels": ["Butter","Chilli","Cider","Cream","Garlic","Lemon","Parsley","Saffron","Shallot","Tarragon","Tomato","White Wine"],
-      "Octopus": ["Capers","Chilli","Garlic","Lemon","Olive Oil","Paprika","Parsley","Red Wine","Tomato","Vinegar"],
-      "Oysters": ["Champagne","Chilli","Cream","Cucumber","Dill","Horseradish","Lemon","Shallot","Tabasco","Vinegar"],
-      "Oily / Pink Fish": ["Avocado","Beetroot","Capers","Cream Cheese","Cucumber","Dill","Honey","Horseradish","Lemon","Lime","Onion","Potato"],
-      "Shrimp": ["Avocado","Butter","Chilli","Cocktail Sauce","Coriander","Dill","Garlic","Lemon","Lime","Paprika","Tomato"],
-      "Smoked Fish": ["Beetroot","Capers","Cream Cheese","Dill","Egg","Horseradish","Lemon","Mustard","Onion","Potato"],
-      "Squid": ["Aioli","Chilli","Coriander","Cumin","Garlic","Ink","Lemon","Lime","Paprika","Parsley","Tomato"],
-      "Sushi": ["Avocado","Cucumber","Ginger","Lime","Rice Wine Vinegar","Sesame","Soy Sauce","Wasabi"],
-      "White Fish": ["Basil","Butter","Capers","Chilli","Cream","Dill","Garlic","Lemon","Mild Cheese","Mozzarella","Onion","Parsley","Pea","Potato","Spinach","Tomato"],
+      "Caviar": ["Blinis","Buckwheat","Butter","Champagne","Chive","Cream","Egg","Lemon","Onion","Sour Cream"],
+      "Clams": ["Avocado","Butter","Chilli","Chorizo","Cider","Coriander","Cream","Garlic","Lemon","Parsley","Pasta","Shallot","Tarragon","Tomato","White Wine"],
+      "Crab": ["Avocado","Butter","Chilli","Chive","Cider","Cream","Cucumber","Dill","Garlic","Lemon","Lime","Mayonnaise","Parsley","Saffron","Shallot","Tarragon","Tomato","White Wine"],
+      "Lobster": ["Avocado","Brandy","Butter","Chilli","Coriander","Cream","Garlic","Lemon","Parsley","Shallot","Tarragon","Tomato","Truffle","White Wine"],
+      "Mussels": ["Butter","Chilli","Cider","Coconut Milk","Cream","Garlic","Lemon","Lemongrass","Parsley","Saffron","Shallot","Tarragon","Tomato","White Wine"],
+      "Octopus": ["Capers","Chilli","Chorizo","Garlic","Lemon","Olive Oil","Paprika","Parsley","Potato","Red Wine","Tomato","Vinegar"],
+      "Oysters": ["Champagne","Chilli","Cream","Cucumber","Dill","Horseradish","Lemon","Mignonette","Shallot","Tabasco","Vinegar"],
+      "Oily / Pink Fish": ["Asparagus","Avocado","Beetroot","Capers","Cream Cheese","Cucumber","Dill","Fennel","Honey","Horseradish","Lemon","Lime","Onion","Potato","Sorrel"],
+      "Shrimp": ["Avocado","Butter","Chilli","Cocktail Sauce","Coconut","Coriander","Dill","Garlic","Lemon","Lime","Mango","Old Bay","Paprika","Tomato"],
+      "Smoked Fish": ["Apple","Beetroot","Capers","Cream Cheese","Crème Fraîche","Dill","Egg","Horseradish","Lemon","Mustard","Onion","Potato"],
+      "Squid": ["Aioli","Chilli","Chorizo","Coriander","Cumin","Garlic","Ink","Lemon","Lime","Paprika","Parsley","Tomato"],
+      "Sushi": ["Avocado","Cucumber","Ginger","Lime","Pickled Daikon","Rice Wine Vinegar","Sesame","Soy Sauce","Wasabi"],
+      "White Fish": ["Basil","Brown Butter","Butter","Capers","Chilli","Cream","Dill","Garlic","Lemon","Mild Cheese","Mozzarella","Onion","Parsley","Pea","Potato","Spinach","Tomato"],
     }
   },
   Poultry: {
     color: '#d4884a',
     items: {
-      "Chicken": ["Coconut","Coriander","Cream","Garlic","Lemon","Mushroom","Mustard","Onion","Paprika","Potato","Raisins","Rosemary","Tarragon","Thyme","Tomato"],
-      "Duck": ["Cherry","Ginger","Hoisin","Honey","Lemon","Mint","Onion","Orange","Plum","Port","Potato","Red Wine","Soy","Thyme"],
-      "Game": ["Bacon","Chestnut","Chocolate","Cream","Juniper","Mushroom","Orange","Red Wine","Redcurrant","Rosemary","Thyme"],
-      "Goose": ["Apple","Chestnut","Cranberry","Garlic","Onion","Orange","Port","Red Cabbage","Sage","Thyme"],
-      "Ostrich": ["Garlic","Lemon","Mild Cheese","Mozzarella","Mustard","Pepper","Red Wine","Rosemary","Tomato"],
+      "Chicken": ["Coconut","Coriander","Cream","Garlic","Lemon","Mushroom","Mustard","Onion","Paprika","Potato","Raisins","Rosemary","Sage","Tarragon","Thyme","Tomato","White Wine"],
+      "Duck": ["Cherry","Ginger","Hoisin","Honey","Lemon","Mint","Onion","Orange","Plum","Port","Potato","Red Wine","Soy","Thyme","Turnip"],
+      "Game": ["Bacon","Celeriac","Chestnut","Chocolate","Cream","Juniper","Mushroom","Orange","Red Wine","Redcurrant","Rosemary","Thyme"],
+      "Goose": ["Apple","Chestnut","Cranberry","Garlic","Onion","Orange","Port","Prune","Red Cabbage","Sage","Thyme"],
+      "Ostrich": ["Garlic","Lemon","Mild Cheese","Mozzarella","Mustard","Pepper","Red Wine","Rosemary","Thyme","Tomato"],
       "Pigeon": ["Beetroot","Cherry","Garlic","Lemon","Lentil","Mint","Onion","Pea","Potato","Red Wine","Thyme"],
-      "Turkey": ["Bacon","Butter","Cranberry","Garlic","Gravy","Lemon","Onion","Rosemary","Sage","Stuffing","Thyme"],
+      "Turkey": ["Bacon","Butter","Chestnut","Cranberry","Garlic","Gravy","Lemon","Onion","Rosemary","Sage","Stuffing","Thyme"],
     }
   },
   "Root Vegetable": {
     color: '#6ab87a',
     items: {
-      "Artichoke": ["Anchovies","Butter","Capers","Cream","Garlic","Hollandaise","Lemon","Mayonnaise","Parmesan","Vinaigrette"],
-      "Beetroot": ["Balsamic","Dill","Duck","Goat Cheese","Horseradish","Orange","Scallops","Soft Cheese","Vinegar","Walnut"],
-      "Carrot": ["Coriander","Cumin","Ginger","Honey","Lemon","Mango","Mild Cheese","Orange","Thyme"],
-      "Potato": ["Bacon","Butter","Cheese","Chive","Cream","Garlic","Leek","Onion","Rosemary","Smoked Fish","Sour Cream","Thyme"],
-      "Radish": ["Butter","Chilli","Cucumber","Dill","Fish Sauce","Lemon","Miso","Sesame","Soy Sauce","Vinegar"],
-      "Sweet Potato": ["Butter","Chilli","Chipotle","Cinnamon","Coconut","Ginger","Goat Cheese","Honey","Lime","Maple Syrup","Pecan"],
-      "Turnip": ["Butter","Chicken","Clove","Cream","Fennel","Garlic","Nutmeg","Potato","Thyme"],
+      "Artichoke": ["Anchovies","Butter","Capers","Cream","Garlic","Hollandaise","Lemon","Mayonnaise","Parmesan","Truffle","Vinaigrette"],
+      "Beetroot": ["Balsamic","Dill","Duck","Feta","Goat Cheese","Horseradish","Orange","Scallops","Soft Cheese","Vinegar","Walnut"],
+      "Carrot": ["Coriander","Cumin","Ginger","Honey","Lemon","Mango","Mild Cheese","Orange","Tahini","Thyme"],
+      "Potato": ["Bacon","Butter","Cheese","Chive","Cream","Garlic","Leek","Onion","Rosemary","Smoked Fish","Sour Cream","Thyme","Truffle"],
+      "Radish": ["Butter","Chilli","Cucumber","Dill","Fish Sauce","Lemon","Miso","Sesame","Soy Sauce","Vinegar","Wasabi"],
+      "Sweet Potato": ["Butter","Chilli","Chipotle","Cinnamon","Coconut","Ginger","Goat Cheese","Honey","Lime","Maple Syrup","Miso","Pecan"],
+      "Turnip": ["Butter","Chicken","Clove","Cream","Duck","Fennel","Garlic","Nutmeg","Potato","Thyme"],
       "Yam": ["Brown Sugar","Butter","Cinnamon","Coconut","Ginger","Honey","Lime","Nutmeg","Pecan","Thyme"],
     }
   },
   "Greens & Salad": {
     color: '#4cb898',
     items: {
-      "Alfalfa": ["Avocado","Lemon","Sesame","Tomato","Vinegar"],
-      "Baby Spinach": ["Bacon","Cream","Egg","Garlic","Lemon","Mushroom","Nutmeg","Parmesan","Pine Nuts"],
+      "Alfalfa": ["Avocado","Lemon","Sesame","Tahini","Tomato","Vinegar"],
+      "Baby Spinach": ["Bacon","Cream","Egg","Garlic","Lemon","Mushroom","Nutmeg","Parmesan","Pine Nuts","Strawberry"],
       "Broccoli": ["Anchovy","Chilli","Garlic","Lemon","Oyster Sauce","Parmesan","Pine Nuts","Sesame","Soy Sauce","Strong Cheese","Thyme","Tomato"],
-      "Brussels Sprouts": ["Bacon","Butter","Caraway","Chestnuts","Cream","Garlic","Lemon","Mild Cheese","Nutmeg"],
-      "Cress": ["Chicken","Cream Cheese","Egg","Ginger","Lemon","Mustard","Seaweed"],
-      "Lettuce": ["Anchovy","Crouton","Egg","Herbs","Lemon","Mustard","Parmesan","Peas","Vinegar"],
-      "Pepper": ["Anchovy","Asparagus","Basil","Feta","Garlic","Olive Oil","Onion","Rice","Tomato"],
-      "Rocket": ["Balsamic","Bread","Garlic","Ham","Lemon","Parmesan","Pine Nuts","Prosciutto","Tomato"],
-      "Seaweed": ["Chilli","Ginger","Lemon","Miso","Rice Wine","Sesame","Soy Sauce","Tofu"],
+      "Brussels Sprouts": ["Bacon","Butter","Caraway","Chestnuts","Cream","Garlic","Lemon","Mild Cheese","Mustard","Nutmeg"],
+      "Cress": ["Chicken","Cream Cheese","Egg","Ginger","Lemon","Mustard","Seaweed","Smoked Fish"],
+      "Lettuce": ["Anchovy","Bacon","Crouton","Egg","Herbs","Lemon","Mustard","Parmesan","Peas","Vinegar"],
+      "Pepper": ["Anchovy","Asparagus","Basil","Chorizo","Feta","Garlic","Olive Oil","Onion","Rice","Tomato"],
+      "Rocket": ["Balsamic","Bread","Garlic","Ham","Lemon","Parmesan","Pine Nuts","Prosciutto","Tomato","Truffle"],
+      "Seaweed": ["Chilli","Ginger","Lemon","Miso","Rice Wine","Sesame","Soy Sauce","Tofu","Yuzu"],
       "Spinach": ["Chickpeas","Cream","Egg","Feta","Garlic","Lemon","Mushroom","Nutmeg","Parmesan","Pasta","Ricotta"],
       "Watercress": ["Bacon","Cream","Egg","Horseradish","Lemon","Mustard","Potato","Smoked Fish","Walnut"],
     }
@@ -742,17 +767,17 @@ const DATA = {
   "Bulbous Stem Vegetable": {
     color: '#9a84e0',
     items: {
-      "Asparagus": ["Butter","Cream","Egg","Ham","Hollandaise","Lemon","Mint","Parmesan","Smoked Salmon","Truffle"],
-      "Aubergine": ["Basil","Chickpeas","Cumin","Feta","Garlic","Lamb","Lemon","Mozzarella","Olive Oil","Tahini","Tomato","Yogurt"],
-      "Celery": ["Anchovy","Apple","Blue Cheese","Cream Cheese","Lemon","Stilton","Tomato","Walnut"],
-      "Courgette": ["Basil","Feta","Garlic","Goat Cheese","Lemon","Mint","Parmesan","Pasta","Shrimp","Tomato"],
-      "Cucumber": ["Dill","Garlic","Lemon","Mint","Soft Cheese","Soup","Sour Cream","Tomato","Vinegar","Yogurt"],
-      "Fennel": ["Anchovies","Anise","Apple","Bay","Beef","Cream","Dill","Honey","Lemon","Orange","Parmesan"],
-      "Leek": ["Butter","Cheese","Cream","Mustard","Potato","Soy","Strong Cheese","Thyme","Vinegar"],
+      "Asparagus": ["Brown Butter","Butter","Cream","Egg","Garlic","Ham","Hollandaise","Lemon","Mint","Olive Oil","Parmesan","Smoked Salmon","Truffle"],
+      "Aubergine": ["Basil","Chickpeas","Cumin","Feta","Garlic","Lamb","Lemon","Mozzarella","Olive Oil","Pomegranate","Tahini","Tomato","Yogurt"],
+      "Celery": ["Anchovy","Apple","Blue Cheese","Cream Cheese","Lemon","Peanut Butter","Stilton","Tomato","Walnut"],
+      "Courgette": ["Basil","Feta","Garlic","Goat Cheese","Lemon","Mint","Parmesan","Pasta","Ricotta","Shrimp","Tomato"],
+      "Cucumber": ["Dill","Garlic","Lemon","Mint","Sesame","Soft Cheese","Sour Cream","Tomato","Vinegar","Yogurt"],
+      "Fennel": ["Anchovies","Anise","Apple","Bay","Beef","Cream","Dill","Honey","Lemon","Orange","Parmesan","Pork"],
+      "Leek": ["Bacon","Butter","Cheese","Cream","Mustard","Potato","Soy","Strong Cheese","Thyme","Vinegar"],
       "Onion": ["Bacon","Balsamic","Bay","Caraway","Cheese","Cream","Garlic","Sugar","Thyme","Vinegar"],
       "Shallot": ["Balsamic Vinegar","Butter","Capers","Garlic","Lemon","Mustard","Red Wine","Thyme","Vinegar"],
       "Squash": ["Butter","Chilli","Cream","Garlic","Ginger","Grapes","Honey","Nutmeg","Parmesan","Pigeon","Sage","Thyme"],
-      "Tomato": ["Anchovy","Balsamic","Basil","Chicken","Chilli","Cream","Feta","Garlic","Mozzarella","Olive Oil","Onion","Oregano"],
+      "Tomato": ["Anchovy","Balsamic","Basil","Chicken","Chilli","Cream","Feta","Garlic","Mozzarella","Olive Oil","Onion","Oregano","Tuna"],
     }
   },
 
@@ -760,23 +785,23 @@ const DATA = {
     color: '#e8845a',
     items: {
       "Aubergine (Asian)": ["Chilli","Fish Sauce","Garlic","Ginger","Miso","Sesame","Soy Sauce","Spring Onion","Thai Basil"],
-      "Beef (Asian)": ["Chilli","Fish Sauce","Garlic","Ginger","Hoisin","Lemongrass","Lime","Oyster Sauce","Sesame","Soy Sauce","Spring Onion","Star Anise"],
+      "Beef (Asian)": ["Chilli","Fish Sauce","Garlic","Ginger","Hoisin","Lemongrass","Lime","Oyster Sauce","Sesame","Soy Sauce","Spring Onion","Star Anise","Wasabi"],
       "Bok Choy": ["Chilli","Fish Sauce","Garlic","Ginger","Oyster Sauce","Sesame","Soy Sauce","Spring Onion"],
-      "Chicken (Asian)": ["Chilli","Coconut Milk","Fish Sauce","Galangal","Garlic","Ginger","Kaffir Lime","Lemongrass","Oyster Sauce","Sesame","Soy Sauce","Turmeric"],
+      "Chicken (Asian)": ["Chilli","Coconut Milk","Fish Sauce","Galangal","Garlic","Ginger","Kaffir Lime","Lemongrass","Miso","Oyster Sauce","Sesame","Soy Sauce","Turmeric"],
       "Cod (Asian)": ["Bok Choy","Chilli","Ginger","Mirin","Miso","Rice Wine","Sesame","Soy Sauce","Spring Onion"],
       "Duck (Asian)": ["Chinese Five Spice","Garlic","Ginger","Hoisin","Mandarin","Plum Sauce","Sesame","Soy Sauce","Spring Onion","Star Anise"],
       "Egg (Asian)": ["Chilli Oil","Dashi","Fish Sauce","Garlic","Mirin","Sesame","Soy Sauce","Spring Onion"],
       "Lamb (Asian)": ["Chilli","Cumin","Garlic","Ginger","Soy Sauce","Spring Onion","Star Anise","Yogurt"],
       "Mackerel (Asian)": ["Chilli","Daikon","Garlic","Ginger","Mirin","Miso","Rice Wine","Sesame","Soy Sauce","Spring Onion","Yuzu"],
       "Mushroom (Asian)": ["Bamboo Shoots","Bok Choy","Garlic","Ginger","Mirin","Miso","Sesame","Soy Sauce","Spring Onion","Tofu"],
-      "Noodles": ["Bok Choy","Chilli","Fish Sauce","Garlic","Ginger","Mushroom","Sesame","Soy Sauce","Spring Onion","Tofu"],
+      "Noodles": ["Bok Choy","Chilli","Dashi","Fish Sauce","Garlic","Ginger","Mushroom","Sesame","Soy Sauce","Spring Onion","Tofu"],
       "Pork (Asian)": ["Chilli","Chinese Five Spice","Fish Sauce","Garlic","Ginger","Hoisin","Miso","Rice Wine","Sesame","Soy Sauce","Star Anise"],
       "Prawn (Asian)": ["Chilli","Fish Sauce","Galangal","Garlic","Ginger","Kaffir Lime","Lemongrass","Lime","Sesame","Soy Sauce","Tamarind"],
-      "Rice": ["Chilli","Egg","Fish Sauce","Garlic","Ginger","Mushroom","Sesame","Soy Sauce","Spring Onion","Turmeric"],
+      "Rice": ["Chilli","Egg","Fish Sauce","Garlic","Ginger","Mushroom","Sesame","Soy Sauce","Spring Onion","Turmeric","Vinegar"],
       "Salmon (Asian)": ["Ginger","Mirin","Miso","Rice Wine Vinegar","Sesame","Soy Sauce","Spring Onion","Wasabi","Yuzu"],
       "Sea Bass (Asian)": ["Chilli","Coriander","Ginger","Lemongrass","Lime","Sesame Oil","Soy Sauce","Spring Onion","Thai Basil"],
       "Snapper (Asian)": ["Chilli","Coriander","Fish Sauce","Galangal","Garlic","Kaffir Lime","Lemongrass","Lime","Tamarind","Thai Basil"],
-      "Tofu": ["Chilli","Garlic","Ginger","Miso","Mushroom","Sesame","Soy Sauce","Spring Onion","Sriracha","Tahini","Yuzu"],
+      "Tofu": ["Chilli","Chilli Oil","Garlic","Ginger","Miso","Mushroom","Sesame","Soy Sauce","Spring Onion","Sriracha","Tahini","Yuzu"],
       "Tuna (Asian)": ["Avocado","Ginger","Mirin","Miso","Rice Wine Vinegar","Sesame","Soy Sauce","Spring Onion","Wasabi","Yuzu"],
     }
   },
@@ -785,12 +810,12 @@ const DATA = {
     items: {
       "All Meat": ["Bay","Cream","Garlic","Mushroom","Mustard","Onion","Pepper","Red Wine","Rosemary","Salt","Thyme"],
       "Bacon": ["Avocado","Cheese","Egg","Lentils","Maple Syrup","Mushroom","Mustard","Thyme","Tomato"],
-      "Beef": ["Cream","Garlic","Horseradish","Mushroom","Mustard","Paprika","Parsley","Parsnip","Pepper","Red Wine","Thyme"],
-      "Kidneys": ["Bacon","Butter","Cream","Mushroom","Mustard","Parsley","Red Wine","Shallot","Thyme"],
+      "Beef": ["Anchovy","Bone Marrow","Cream","Garlic","Horseradish","Mushroom","Mustard","Paprika","Parsley","Parsnip","Pepper","Red Wine","Thyme"],
+      "Kidneys": ["Bacon","Butter","Cream","Mushroom","Mustard","Parsley","Port","Red Wine","Shallot","Thyme"],
       "Liver": ["Allspice","Apple","Bacon","Balsamic","Butter","Caramelised Onion","Cream","Onion","Sage"],
-      "Pork": ["Apple","Balsamic","Chilli","Cream","Fennel","Garlic","Ginger","Honey","Mustard","Sage","Soy Sauce","Thyme"],
-      "Rabbit": ["Bacon","Cream","Garlic","Lemon","Mushroom","Mustard","Onion","Rosemary","Thyme","White Wine"],
-      "Veal": ["Anchovy","Butter","Capers","Cream","Lemon","Marsala","Mushroom","Nutmeg","Parsley","Sage","Thyme"],
+      "Pork": ["Apple","Balsamic","Chilli","Cream","Fennel","Garlic","Ginger","Honey","Mustard","Prune","Sage","Soy Sauce","Thyme"],
+      "Rabbit": ["Bacon","Cream","Garlic","Lemon","Mushroom","Mustard","Olives","Onion","Rosemary","Thyme","White Wine"],
+      "Veal": ["Anchovy","Butter","Capers","Cream","Lemon","Marsala","Mushroom","Nutmeg","Parsley","Sage","Thyme","Tuna"],
     }
   },
 };
@@ -1215,20 +1240,32 @@ const ALL_FLAVOUR_KEYS = Object.keys(ALL_FLAVOURS).sort();
 
 function setSearchMode(mode) {
   searchMode = mode;
-  ['reverse','fridge'].forEach(function(m) {
-    document.getElementById('mode-' + m).classList.toggle('active', m === mode);
+  ['reverse','fridge','pairing'].forEach(function(m) {
+    var btn = document.getElementById('mode-' + m);
+    if (btn) btn.classList.toggle('active', m === mode);
   });
   var input = document.getElementById('search-input');
   var fridgeTags = document.getElementById('fridge-tags');
   var desc = document.getElementById('search-mode-desc');
+  var pairingTags = document.getElementById('pairing-tags');
   if (mode === 'reverse') {
     input.placeholder = 'Type a flavour (e.g. lemon, garlic)…';
     fridgeTags.style.display = 'none';
+    pairingTags.style.display = 'none';
+    var t = document.getElementById('search-mode-title'); if (t) t.textContent = 'Reverse Lookup';
     desc.textContent = 'Type a flavour and see every ingredient it pairs well with.';
-  } else {
+  } else if (mode === 'fridge') {
     input.placeholder = 'Add ingredients you have…';
     fridgeTags.style.display = fridgeItems.size ? 'flex' : 'none';
+    pairingTags.style.display = 'none';
+    var t = document.getElementById('search-mode-title'); if (t) t.textContent = 'What\'s in My Fridge?';
     desc.textContent = 'Add what\'s in your fridge and we\'ll suggest what pairs well together.';
+  } else {
+    input.placeholder = 'Add a main ingredient (e.g. chicken, beetroot)…';
+    fridgeTags.style.display = 'none';
+    pairingTags.style.display = pairingItems.size ? 'flex' : 'none';
+    var t = document.getElementById('search-mode-title'); if (t) t.textContent = 'What Goes Well Together?';
+    desc.textContent = 'Select two or more main ingredients to find classic combinations and shared flavours.';
   }
   input.value = '';
   document.getElementById('search-clear').style.display = 'none';
@@ -1240,6 +1277,8 @@ function onSearchInput() {
   document.getElementById('search-clear').style.display = val ? 'block' : 'none';
   if (searchMode === 'fridge') {
     renderFridgeSuggestions(val);
+  } else if (searchMode === 'pairing') {
+    renderPairingSuggestions(val);
   } else {
     renderSearchResults();
   }
@@ -1248,7 +1287,8 @@ function onSearchInput() {
 function clearSearch() {
   document.getElementById('search-input').value = '';
   document.getElementById('search-clear').style.display = 'none';
-  renderSearchResults();
+  if (searchMode === 'pairing') renderPairingResults();
+  else renderSearchResults();
 }
 
 function renderSearchResults() {
@@ -1256,6 +1296,7 @@ function renderSearchResults() {
   var q = document.getElementById('search-input').value.trim().toLowerCase();
 
   if (searchMode === 'fridge') { renderFridgeResults(); return; }
+  if (searchMode === 'pairing') { renderPairingResults(); return; }
 
   if (!q) {
     el.innerHTML = '<p class="search-empty">Start typing to search.</p>';
@@ -1440,7 +1481,7 @@ function renderFridgeTags() {
 function renderFridgeResults() {
   var el = document.getElementById('search-results');
   if (!fridgeItems.size) {
-    el.innerHTML = '<p class="search-empty">Add ingredients you have and we\'ll suggest what to cook.</p>';
+    el.innerHTML = '<p class="search-empty">Type an ingredient above to get started — e.g. lemon, garlic, cream.</p>';
     return;
   }
   var fridgeLower = new Set();
@@ -1536,6 +1577,255 @@ const SUB_ALIASES = {
   'cherry tomato': 'Tomato', 'beef tomato': 'Tomato', 'plum tomato': 'Tomato',
 };
 
+
+// ── PAIRING MODE ──────────────────────────────────────
+// Classic main ingredient pairings
+var INGREDIENT_PAIRINGS = {
+  // Seafood
+  'Lobster':        ['Butter', 'Avocado', 'Tarragon', 'Champagne'],
+  'Mussels':        ['White Wine', 'Shallot', 'Cream', 'Parsley'],
+  'Crab':           ['Avocado', 'Lemon', 'Cucumber', 'Dill'],
+  'Squid':          ['Chorizo', 'Rocket', 'Tomato', 'Lemon'],
+  'Shrimp':         ['Avocado', 'Mango', 'Garlic', 'Chilli'],
+  'Oily / Pink Fish': ['Asparagus', 'Beetroot', 'Capers', 'Dill', 'Avocado'],
+  'White Fish':     ['Spinach', 'Potato', 'Asparagus', 'Capers', 'Pea'],
+  'Smoked Fish':    ['Potato', 'Beetroot', 'Egg', 'Cream Cheese'],
+  'Oysters':        ['Champagne', 'Shallot', 'Lemon'],
+  // Poultry
+  'Chicken':        ['Leek', 'Mushroom', 'Bacon', 'Potato', 'Tarragon'],
+  'Duck':           ['Beetroot', 'Orange', 'Cherry', 'Plum', 'Fennel'],
+  'Turkey':         ['Bacon', 'Chestnut', 'Cranberry', 'Sage'],
+  'Goose':          ['Apple', 'Chestnut', 'Red Cabbage', 'Cranberry'],
+  'Game':           ['Beetroot', 'Celeriac', 'Chestnut', 'Mushroom', 'Bacon'],
+  'Pigeon':         ['Beetroot', 'Lentil', 'Pea', 'Cherry'],
+  // Meat
+  'Beef':           ['Bone Marrow', 'Mushroom', 'Onion', 'Potato', 'Spinach'],
+  'Pork':           ['Apple', 'Fennel', 'Cabbage', 'Sage', 'Onion'],
+  'Bacon':          ['Egg', 'Mushroom', 'Tomato', 'Avocado', 'Spinach'],
+  'Lamb':           ['Aubergine', 'Courgette', 'Rosemary', 'Garlic', 'Spinach'],
+  'Veal':           ['Asparagus', 'Mushroom', 'Spinach', 'Sage'],
+  'Rabbit':         ['Mushroom', 'Bacon', 'Mustard', 'Onion'],
+  'Liver':          ['Bacon', 'Onion', 'Apple', 'Sage'],
+  // Root Veg
+  'Beetroot':       ['Goat Cheese', 'Walnut', 'Orange', 'Duck', 'Salmon'],
+  'Carrot':         ['Ginger', 'Coriander', 'Cumin', 'Honey', 'Orange'],
+  'Potato':         ['Leek', 'Bacon', 'Cheese', 'Onion', 'Smoked Fish'],
+  'Sweet Potato':   ['Chilli', 'Lime', 'Coconut', 'Ginger', 'Pecan'],
+  'Artichoke':      ['Hollandaise', 'Lemon', 'Parmesan', 'Anchovies'],
+  'Turnip':         ['Chicken', 'Cream', 'Potato', 'Fennel'],
+  'Radish':         ['Butter', 'Cucumber', 'Dill', 'Smoked Fish'],
+  'Yam':            ['Coconut', 'Ginger', 'Cinnamon', 'Butter'],
+  // Greens
+  'Spinach':        ['Mushroom', 'Egg', 'Bacon', 'Ricotta', 'Chickpeas'],
+  'Baby Spinach':   ['Bacon', 'Mushroom', 'Egg', 'Pine Nuts'],
+  'Broccoli':       ['Anchovy', 'Chilli', 'Garlic', 'Parmesan', 'Soy Sauce'],
+  'Rocket':         ['Parmesan', 'Prosciutto', 'Tomato', 'Balsamic'],
+  'Lettuce':        ['Anchovy', 'Egg', 'Parmesan', 'Crouton'],
+  'Watercress':     ['Smoked Fish', 'Potato', 'Egg', 'Walnut'],
+  'Seaweed':        ['Tofu', 'Sesame', 'Miso', 'Rice Wine'],
+  'Pepper':         ['Feta', 'Aubergine', 'Tomato', 'Onion'],
+  // Bulbous Stem
+  'Asparagus':      ['Egg', 'Ham', 'Smoked Salmon', 'Parmesan', 'Truffle'],
+  'Aubergine':      ['Lamb', 'Tomato', 'Mozzarella', 'Chickpeas', 'Courgette'],
+  'Tomato':         ['Basil', 'Mozzarella', 'Anchovy', 'Onion', 'Courgette'],
+  'Courgette':      ['Tomato', 'Aubergine', 'Feta', 'Mint', 'Pasta'],
+  'Fennel':         ['Pork', 'Orange', 'Apple', 'Lemon', 'Parmesan'],
+  'Leek':           ['Chicken', 'Potato', 'Cheese', 'Bacon'],
+  'Onion':          ['Beef', 'Bacon', 'Cheese', 'Thyme', 'Balsamic'],
+  'Squash':         ['Sage', 'Chilli', 'Parmesan', 'Ginger'],
+  'Cucumber':       ['Dill', 'Yogurt', 'Mint', 'Tomato'],
+  'Celery':         ['Blue Cheese', 'Walnut', 'Apple', 'Stilton'],
+  'Shallot':        ['Red Wine', 'Mustard', 'Butter', 'Thyme'],
+};
+
+var pairingItems = new Set();
+
+function addToPairing(name) {
+  pairingItems.add(name);
+  document.getElementById('search-input').value = '';
+  document.getElementById('search-clear').style.display = 'none';
+  renderPairingTags();
+  renderPairingResults();
+}
+
+function removeFromPairing(name) {
+  pairingItems.delete(name);
+  renderPairingTags();
+  renderPairingResults();
+}
+
+function renderPairingTags() {
+  var el = document.getElementById('pairing-tags');
+  el.style.display = pairingItems.size ? 'flex' : 'none';
+  el.innerHTML = '';
+  pairingItems.forEach(function(name) {
+    var tag = document.createElement('span');
+    tag.className = 'fridge-tag';
+    var text = document.createTextNode(name);
+    var btn = document.createElement('button');
+    btn.textContent = '×';
+    btn.onclick = (function(name) { return function() { removeFromPairing(name); }; })(name);
+    tag.appendChild(text);
+    tag.appendChild(btn);
+    el.appendChild(tag);
+  });
+}
+
+function renderPairingSuggestions(q) {
+  var el = document.getElementById('search-results');
+  if (!q) { renderPairingResults(); return; }
+
+  // Match subcategory names not already selected
+  var matches = ALL_SUBS
+    .filter(function(s) { return s.sub.toLowerCase().includes(q) && !pairingItems.has(s.sub); })
+    .map(function(s) { return s.sub; })
+    .filter(function(v, i, a) { return a.indexOf(v) === i; }) // dedupe
+    .slice(0, 8);
+
+  el.innerHTML = '';
+  if (!matches.length) return;
+
+  var header = document.createElement('div');
+  header.className = 'result-group-label';
+  header.style.marginBottom = '6px';
+  header.textContent = 'Suggestions';
+  el.appendChild(header);
+
+  matches.forEach(function(sub) {
+    var row = document.createElement('div');
+    row.className = 'result-card';
+    row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;';
+    var name = document.createElement('span');
+    name.style.cssText = 'font-size:14px;color:var(--cream);';
+    name.textContent = sub;
+    row.appendChild(name);
+    row.onclick = (function(sub) { return function() { addToPairing(sub); }; })(sub);
+    el.appendChild(row);
+  });
+}
+
+function renderPairingResults() {
+  var el = document.getElementById('search-results');
+  if (!pairingItems.size) {
+    el.innerHTML = '<p class="search-empty">Add ingredients to see what goes well together.</p>';
+    return;
+  }
+
+  // For each selected ingredient, find its known pairings that overlap with other selected items
+  // Also show top classic pairings for single selections
+  var items = Array.from(pairingItems);
+  el.innerHTML = '';
+
+  if (items.length === 1) {
+    var name = items[0];
+    var pairs = INGREDIENT_PAIRINGS[name];
+    if (!pairs || !pairs.length) {
+      // Fall back to checking ALL_SUBS complementary flavours for overlap
+      el.innerHTML = '<p class="search-empty">No classic pairings found for ' + name + '. Try the Explore tab to see its complementary flavours.</p>';
+      return;
+    }
+    var header = document.createElement('div');
+    header.className = 'result-group-label';
+    header.style.marginBottom = '8px';
+    header.textContent = 'Goes well with ' + name;
+    el.appendChild(header);
+    pairs.forEach(function(pair) {
+      // Check if this pair is also a main ingredient (has its own sub entry)
+      var subEntry = ALL_SUBS.find(function(s) { return s.sub === pair; });
+      var card = document.createElement('div');
+      card.className = 'result-card';
+      if (subEntry) card.style.borderLeft = '3px solid ' + subEntry.color;
+      var title = document.createElement('div');
+      title.className = 'result-card-title';
+      title.textContent = pair;
+      card.appendChild(title);
+      if (subEntry) {
+        var sub = document.createElement('div');
+        sub.className = 'result-card-sub';
+        sub.textContent = subEntry.cat + ' · tap to explore';
+        card.appendChild(sub);
+        card.onclick = (function(s) { return function() {
+          selCat = s.cat; selColor = s.color; selSub = s.sub; checked = new Set();
+          goToIng();
+        }; })(subEntry);
+      }
+      el.appendChild(card);
+    });
+
+  } else {
+    // Multiple items — find cross-pairings between them
+    var header = document.createElement('div');
+    header.className = 'result-group-label';
+    header.style.marginBottom = '8px';
+    header.textContent = 'Classic combinations';
+    el.appendChild(header);
+
+    var found = false;
+    for (var i = 0; i < items.length; i++) {
+      for (var j = i + 1; j < items.length; j++) {
+        var a = items[i], b = items[j];
+        var aPairs = INGREDIENT_PAIRINGS[a] || [];
+        var bPairs = INGREDIENT_PAIRINGS[b] || [];
+        var aMatchesB = aPairs.indexOf(b) !== -1 || bPairs.indexOf(a) !== -1;
+        if (aMatchesB) {
+          found = true;
+          var card = document.createElement('div');
+          card.className = 'result-card';
+          card.style.cssText = 'background:rgba(232,201,122,0.06);border-color:rgba(232,201,122,0.3);';
+          var title = document.createElement('div');
+          title.className = 'result-card-title';
+          title.textContent = a + ' + ' + b;
+          var sub = document.createElement('div');
+          sub.className = 'result-card-sub';
+          sub.textContent = 'Classic pairing';
+          card.appendChild(title);
+          card.appendChild(sub);
+          el.appendChild(card);
+        }
+      }
+    }
+
+    // Also show shared complementary flavours across all selected
+    var sharedFlavours = null;
+    items.forEach(function(name) {
+      var sub = ALL_SUBS.find(function(s) { return s.sub === name; });
+      if (!sub) return;
+      var ingsSet = new Set(sub.ings.map(function(i) { return i.toLowerCase(); }));
+      if (!sharedFlavours) {
+        sharedFlavours = ingsSet;
+      } else {
+        sharedFlavours = new Set([...sharedFlavours].filter(function(x) { return ingsSet.has(x); }));
+      }
+    });
+
+    if (sharedFlavours && sharedFlavours.size) {
+      var hdr2 = document.createElement('div');
+      hdr2.className = 'result-group-label';
+      hdr2.style.cssText = 'margin-top:20px;margin-bottom:8px;';
+      hdr2.textContent = 'Shared complementary flavours';
+      el.appendChild(hdr2);
+      var pills = document.createElement('div');
+      pills.className = 'result-card-pills';
+      pills.style.padding = '2px 0';
+      sharedFlavours.forEach(function(f) {
+        var pill = document.createElement('span');
+        pill.className = 'result-pill highlight';
+        pill.textContent = f.charAt(0).toUpperCase() + f.slice(1);
+        pills.appendChild(pill);
+      });
+      el.appendChild(pills);
+    }
+
+    if (!found && (!sharedFlavours || !sharedFlavours.size)) {
+      var msg = document.createElement('p');
+      msg.className = 'search-empty';
+      msg.textContent = 'No classic pairings found between these ingredients. Try a different combination.';
+      el.appendChild(msg);
+    }
+  }
+}
+
+
 // ── Navigate from search directly to ingredient pairings ──
 function goToIng() {
   currentTab = 'explore';
@@ -1589,7 +1879,12 @@ renderCats();
 updateBadge();
 document.getElementById('btn-explore').classList.add('active');
 updateExploreBtn();
-document.getElementById('search-mode-desc').textContent = 'Type a flavour and see every ingredient it pairs well with.';
+var _desc = document.getElementById('search-mode-desc');
+var _title = document.getElementById('search-mode-title');
+var _ptags = document.getElementById('pairing-tags');
+if (_desc) _desc.textContent = 'Type a flavour and see every ingredient it pairs well with.';
+if (_title) _title.textContent = 'Reverse Lookup';
+if (_ptags) _ptags.style.display = 'none';
 </script>
 </body>
 </html>
