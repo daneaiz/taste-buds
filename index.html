@@ -23,11 +23,6 @@
     --accent:    #e8c97a;
     --accent2:   #c4995a;
 
-    --c-seafood:   #4a9eda;
-    --c-poultry:   #d4884a;
-    --c-rootveg:   #6ab87a;
-    --c-greens:    #4cb898;
-    --c-bulbous:   #9a84e0;
     --c-meat:      #e06868;
     --c-asian:     #e8845a;
 
@@ -225,24 +220,6 @@
   }
   .bc-btn svg { width: 14px; height: 14px; }
   @media (hover: hover) { .bc-btn:hover { color: var(--cream); } }
-  .bc-sep { font-size: 12px; color: var(--faint); }
-  .bc-current {
-    font-size: 12px;
-    color: var(--cream);
-    font-weight: 500;
-  }
-  .bc-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 11px;
-    padding: 3px 9px;
-    border-radius: var(--r);
-    border: 1px solid var(--cat-color, var(--line));
-    color: var(--cat-color, var(--muted));
-    margin-bottom: 14px;
-  }
-  .bc-tag-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 
   /* ── Ingredient checkboxes ── */
   .ing-grid {
@@ -1079,9 +1056,6 @@ function showScreen(name) {
   updateExploreBtn();
 }
 
-function goBack(to) {
-  showScreen(to);
-}
 
 
 function updateExploreBtn() {
@@ -1091,8 +1065,8 @@ function updateExploreBtn() {
 }
 
 function exploreOrBack() {
-  if (currentScreen === 'ings') { switchTab('explore'); showScreen('subs'); }
-  else if (currentScreen === 'subs') { switchTab('explore'); showScreen('cats'); }
+  if (currentScreen === 'ings') { showScreen('subs'); }
+  else if (currentScreen === 'subs') { showScreen('cats'); }
   else { switchTab('explore'); }
 }
 
@@ -1174,26 +1148,29 @@ function renderSearchResults() {
   }
 
   if (searchMode === 'search') {
-    // Direct subcategory name match
-    var directMatches = ALL_SUBS.filter(function(s) { return s.sub.toLowerCase().includes(q); });
-    // Alias match — find the target sub name then look it up
-    var aliasedSubName = SUB_ALIASES[q];
-    var aliasMatches = aliasedSubName
-      ? ALL_SUBS.filter(function(s) { return s.sub === aliasedSubName && !directMatches.find(function(d) { return d.sub === s.sub && d.cat === s.cat; }); })
-      : [];
-    var matches = directMatches.concat(aliasMatches);
-    if (!matches.length) {
-      // Partial alias match
-      var partialAliasKeys = Object.keys(SUB_ALIASES).filter(function(k) { return k.includes(q); });
-      var seen = new Set();
-      partialAliasKeys.forEach(function(k) {
-        var subName = SUB_ALIASES[k];
+    var seen = new Set();
+    var matches = [];
+
+    // 1. Direct sub name match (case-insensitive, partial)
+    ALL_SUBS.forEach(function(s) {
+      var key = s.cat + '|' + s.sub;
+      if (s.sub.toLowerCase().includes(q) && !seen.has(key)) {
+        seen.add(key); matches.push(s);
+      }
+    });
+
+    // 2. Alias match — any alias key that partially matches the query
+    Object.keys(SUB_ALIASES).forEach(function(alias) {
+      if (alias.includes(q)) {
+        var subName = SUB_ALIASES[alias];
         ALL_SUBS.forEach(function(s) {
           var key = s.cat + '|' + s.sub;
-          if (s.sub === subName && !seen.has(key)) { seen.add(key); matches.push(s); }
+          if (s.sub === subName && !seen.has(key)) {
+            seen.add(key); matches.push(s);
+          }
         });
-      });
-    }
+      }
+    });
     if (!matches.length) {
       el.innerHTML = '<p class="search-empty">No ingredients found for "' + q + '".</p>';
       return;
@@ -1452,9 +1429,9 @@ const SUB_ALIASES = {
 // ── Navigate from search directly to ingredient pairings ──
 function goToIng() {
   currentTab = 'explore';
-  document.getElementById('nav-explore').classList.add('active');
-  document.getElementById('nav-search').classList.remove('active');
-  document.getElementById('nav-list').classList.remove('active');
+  document.getElementById('btn-explore').classList.add('active');
+  document.getElementById('btn-search').classList.remove('active');
+  document.getElementById('btn-list').classList.remove('active');
   document.getElementById('screen-search').style.display = 'none';
   document.getElementById('screen-list').style.display = 'none';
   document.getElementById('scroll-area').style.display = 'flex';
@@ -1499,6 +1476,7 @@ function showToast(msg) {
 // ── Init ──
 renderCats();
 document.getElementById('btn-explore').classList.add('active');
+updateExploreBtn();
 </script>
 </body>
 </html>
