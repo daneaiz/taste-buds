@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Taste Buds</title>
+<title>TasteBuds</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -29,6 +29,7 @@
     --c-greens:    #4cb898;
     --c-bulbous:   #9a84e0;
     --c-meat:      #e06868;
+    --c-asian:     #e8845a;
 
     --r: 4px;
     --r-lg: 8px;
@@ -60,8 +61,12 @@
 
   /* ── Header ── */
   header {
-    padding: 20px 20px 0;
+    padding: 0 20px;
     flex-shrink: 0;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
   }
   .header-inner {
     display: flex;
@@ -70,17 +75,17 @@
   }
   .logo {
     font-family: var(--serif);
-    font-size: 26px;
+    font-size: 20px;
     color: var(--cream);
     letter-spacing: -0.01em;
   }
   .logo em { color: var(--accent); font-style: italic; }
   .tagline {
-    font-size: 11px;
+    font-size: 9px;
     color: var(--muted);
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    margin-top: 2px;
+    margin-top: 1px;
   }
 
   /* ── Scroll area ── */
@@ -337,7 +342,7 @@
   }
 
   /* ── Header actions ── */
-  .header-inner { align-items: center; }
+  .header-inner { align-items: center; width: 100%; }
   #header-left { display: flex; align-items: center; gap: 10px; }
   #header-back {
     background: none; border: none; cursor: pointer;
@@ -547,14 +552,15 @@
           </svg>
         </button>
         <div id="header-logo">
-          <div class="logo">Taste <em>Buds</em></div>
+          <div class="logo">Taste<em>Buds</em></div>
           <div class="tagline">Complementary flavours</div>
         </div>
       </div>
       <div class="header-actions">
         <button class="header-icon-btn" id="btn-explore" onclick="switchTab('explore')" aria-label="Explore">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+            <circle cx="12" cy="12" r="9"/>
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
           </svg>
         </button>
         <button class="header-icon-btn" id="btn-search" onclick="switchTab('search')" aria-label="Search">
@@ -636,10 +642,12 @@
         <div class="list-title">My List</div>
         <div class="list-actions">
           <button class="list-action-btn highlight" id="copy-btn" onclick="copyList()">Copy</button>
-          <button class="list-action-btn" onclick="clearList()">Clear all</button>
         </div>
       </div>
       <div id="list-body"></div>
+      <div id="list-clear-wrap" style="display:none; text-align:center; padding:24px 0 12px;">
+        <button id="clear-all-btn" onclick="confirmClear()" style="background:none;border:none;font-family:var(--sans);font-size:12px;color:var(--muted);cursor:pointer;letter-spacing:0.04em;-webkit-tap-highlight-color:transparent;">Clear all items</button>
+      </div>
     </div>
   </div>
 
@@ -723,6 +731,26 @@ const DATA = {
       "Tomato": ["Anchovy","Balsamic","Basil","Chicken","Chilli","Cream","Feta","Garlic","Mozzarella","Olive Oil","Onion","Oregano"],
     }
   },
+
+  "Asian Cuisine": {
+    color: '#e8845a',
+    items: {
+      "Beef (Asian)": ["Chilli","Fish Sauce","Garlic","Ginger","Hoisin","Lemongrass","Lime","Oyster Sauce","Sesame","Soy Sauce","Spring Onion","Star Anise"],
+      "Chicken (Asian)": ["Chilli","Coconut Milk","Fish Sauce","Galangal","Garlic","Ginger","Kaffir Lime","Lemongrass","Oyster Sauce","Sesame","Soy Sauce","Turmeric"],
+      "Tofu": ["Chilli","Garlic","Ginger","Miso","Mushroom","Sesame","Soy Sauce","Spring Onion","Sriracha","Tahini","Yuzu"],
+      "Duck (Asian)": ["Chinese Five Spice","Garlic","Ginger","Hoisin","Mandarin","Plum Sauce","Sesame","Soy Sauce","Spring Onion","Star Anise"],
+      "Pork (Asian)": ["Chilli","Chinese Five Spice","Fish Sauce","Garlic","Ginger","Hoisin","Miso","Rice Wine","Sesame","Soy Sauce","Star Anise"],
+      "Prawn (Asian)": ["Chilli","Fish Sauce","Galangal","Garlic","Ginger","Kaffir Lime","Lemongrass","Lime","Sesame","Soy Sauce","Tamarind"],
+      "Salmon (Asian)": ["Ginger","Mirin","Miso","Rice Wine Vinegar","Sesame","Soy Sauce","Spring Onion","Wasabi","Yuzu"],
+      "Lamb (Asian)": ["Chilli","Cumin","Garlic","Ginger","Soy Sauce","Spring Onion","Star Anise","Yogurt"],
+      "Egg (Asian)": ["Chilli Oil","Dashi","Fish Sauce","Garlic","Mirin","Sesame","Soy Sauce","Spring Onion"],
+      "Noodles": ["Bok Choy","Chilli","Fish Sauce","Garlic","Ginger","Mushroom","Sesame","Soy Sauce","Spring Onion","Tofu"],
+      "Rice": ["Chilli","Egg","Fish Sauce","Garlic","Ginger","Mushroom","Sesame","Soy Sauce","Spring Onion","Turmeric"],
+      "Aubergine (Asian)": ["Chilli","Fish Sauce","Garlic","Ginger","Miso","Sesame","Soy Sauce","Spring Onion","Thai Basil"],
+      "Mushroom (Asian)": ["Bamboo Shoots","Bok Choy","Garlic","Ginger","Mirin","Miso","Sesame","Soy Sauce","Spring Onion","Tofu"],
+      "Bok Choy": ["Chilli","Fish Sauce","Garlic","Ginger","Oyster Sauce","Sesame","Soy Sauce","Spring Onion"],
+    }
+  },
   Meat: {
     color: '#e06868',
     items: {
@@ -751,11 +779,13 @@ const CAT_EMOJI = {
   'Root Vegetable': '🥕',
   'Greens & Salad': '🥗',
   'Bulbous Stem Vegetable': '🧅',
+  'Asian Cuisine': '🥢',
   Meat: '🥩',
 };
 
 // ── Render categories ──
 function renderCats() {
+  selCat = null; selSub = null; selColor = '#f0ead8';
   const grid = document.getElementById('cat-grid');
   grid.innerHTML = '';
   Object.entries(DATA).forEach(([cat, d]) => {
@@ -824,6 +854,21 @@ const SUB_DESCRIPTIONS = {
   'Shallot': 'Milder and sweeter than onion, with a subtle garlic note and fine texture.',
   'Squash': 'Sweet, dense flesh with an earthy warmth — excellent roasted or in soups.',
   'Tomato': 'Bright, acidic, and sweet — the backbone of countless sauces and salads.',
+  // Asian
+  'Beef (Asian)': 'Tender cuts prepared with bold umami sauces — think stir-fries, pho, and Korean BBQ.',
+  'Chicken (Asian)': 'Versatile across cuisines — from Thai green curry to Japanese teriyaki and Chinese kung pao.',
+  'Tofu': 'Mild, protein-rich soy curd that absorbs bold Asian sauces and marinades beautifully.',
+  'Duck (Asian)': 'Rich, fatty meat that pairs perfectly with the bold, sweet-savoury flavours of Chinese cuisine.',
+  'Pork (Asian)': 'A staple across Asian cuisines — from Japanese ramen chashu to Filipino adobo and char siu.',
+  'Prawn (Asian)': 'Sweet, succulent shellfish — central to Thai, Vietnamese, and Chinese cooking.',
+  'Salmon (Asian)': 'Rich, oily fish treated with Japanese-inspired miso, soy, and citrus marinades.',
+  'Lamb (Asian)': 'Bold, gamey meat popular in Chinese northwest, Indian, and Central Asian cuisines.',
+  'Egg (Asian)': 'A cornerstone of Asian cooking — from silky Japanese tamago to spicy Korean eggs.',
+  'Noodles': 'The backbone of countless Asian dishes — from ramen and pho to pad thai and lo mein.',
+  'Rice': 'The essential staple across all Asian cuisines — fried, steamed, congee, or bibimbap.',
+  'Aubergine (Asian)': 'Silky when roasted or wok-fried, absorbing garlic, ginger, and miso beautifully.',
+  'Mushroom (Asian)': 'Earthy, umami-rich — shiitake, enoki, and king oyster are kitchen staples.',
+  'Bok Choy': 'Crisp, mild Chinese cabbage — quick to cook and excellent with garlic and oyster sauce.',
   // Meat
   'All Meat': 'Universal flavour builders that enhance any cut — the essentials of meat cookery.',
   'Bacon': 'Salt-cured, smoked pork belly with a rich, salty, smoky flavour.',
@@ -836,6 +881,9 @@ const SUB_DESCRIPTIONS = {
 };
 
 const SUB_EXAMPLES = {
+  // Asian
+  'Noodles': 'e.g. ramen, udon, soba, rice noodles, glass noodles',
+  'Mushroom (Asian)': 'e.g. shiitake, enoki, oyster, king oyster',
   'Pink Fish': 'e.g. salmon, trout, arctic char',
   'White Fish': 'e.g. cod, haddock, sea bass, sole',
   'Game': 'e.g. venison, pheasant, partridge, grouse',
@@ -929,10 +977,13 @@ function addToList() {
 // ── Shopping list ──
 function renderList() {
   const body = document.getElementById('list-body');
+  const clearWrap = document.getElementById('list-clear-wrap');
   if (shopList.length === 0) {
     body.innerHTML = `<div class="empty-state"><div class="empty-icon">∅</div><div class="empty-msg">Your list is empty.<br>Explore ingredients and add them here.</div></div>`;
+    clearWrap.style.display = 'none';
     return;
   }
+  clearWrap.style.display = 'block';
   // Group by category
   const groups = {};
   shopList.forEach(item => {
@@ -959,6 +1010,29 @@ function removeItem(name) {
   shopList = shopList.filter(i => i.name !== name);
   renderList();
   updateBadge();
+}
+
+let clearPending = false;
+let clearTimer = null;
+
+function confirmClear() {
+  const btn = document.getElementById('clear-all-btn');
+  if (!clearPending) {
+    clearPending = true;
+    btn.textContent = 'Tap again to confirm';
+    btn.style.color = 'var(--c-meat)';
+    clearTimer = setTimeout(function() {
+      clearPending = false;
+      btn.textContent = 'Clear all items';
+      btn.style.color = 'var(--muted)';
+    }, 3000);
+  } else {
+    clearTimeout(clearTimer);
+    clearPending = false;
+    btn.textContent = 'Clear all items';
+    btn.style.color = 'var(--muted)';
+    clearList();
+  }
 }
 
 function clearList() {
@@ -1011,7 +1085,7 @@ function goBack(to) {
 
 
 function updateExploreBtn() {
-  var isDeep = currentScreen === 'subs' || currentScreen === 'ings';
+  var isDeep = currentTab === 'explore' && (currentScreen === 'subs' || currentScreen === 'ings');
   document.getElementById('header-back').style.display = isDeep ? 'flex' : 'none';
   document.getElementById('header-logo').style.display = isDeep ? 'none' : 'block';
 }
@@ -1409,8 +1483,9 @@ function switchTab(tab) {
     setTimeout(function() { document.getElementById('search-input').focus(); }, 50);
   } else {
     document.getElementById('scroll-area').style.display = 'flex';
-    showScreen('cats');
+    showScreen(currentScreen);
   }
+  updateExploreBtn();
 }
 
 // ── Toast ──
@@ -1423,6 +1498,7 @@ function showToast(msg) {
 
 // ── Init ──
 renderCats();
+document.getElementById('btn-explore').classList.add('active');
 </script>
 </body>
 </html>
