@@ -92,7 +92,7 @@
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    padding: 16px 20px 12px;
+    padding: 16px 20px 0;
     scrollbar-width: none;
   }
   #scroll-area::-webkit-scrollbar { display: none; }
@@ -109,6 +109,7 @@
     font-weight: 400;
     color: var(--cream);
     letter-spacing: -0.01em;
+    line-height: 1.1;
     margin-bottom: 20px;
     margin-top: 4px;
   }
@@ -177,7 +178,7 @@
     font-size: 28px;
     font-weight: 400;
     color: var(--cream);
-    line-height: 1.25;
+    line-height: 1.1;
     margin-bottom: 20px;
     letter-spacing: -0.01em;
   }
@@ -287,8 +288,8 @@
   .add-bar {
     position: sticky;
     bottom: 0;
-    background: linear-gradient(to bottom, transparent 0%, var(--bg) 40%);
-    padding: 20px 0 8px;
+    background: linear-gradient(to bottom, transparent 0%, var(--bg) 30%);
+    padding: 20px 0 12px;
     margin-top: 4px;
   }
   .add-btn {
@@ -434,8 +435,8 @@
     background: transparent;
   }
   .list-item.done .list-item-check {
-    background: var(--muted);
-    border-color: var(--muted);
+    background: var(--accent);
+    border-color: var(--accent);
   }
   .list-item-check svg { display: none; }
   .list-item.done .list-item-check svg { display: block; }
@@ -574,7 +575,6 @@
         </button>
         <div id="header-logo">
           <div class="logo">Taste<em>Buds</em></div>
-          <div class="tagline">Complementary flavours</div>
         </div>
       </div>
       <div class="header-actions">
@@ -604,7 +604,7 @@
   <div id="scroll-area">
     <!-- Screen: Categories -->
     <div id="screen-cats" class="screen active">
-      <h1 class="page-title">Explore</h1>
+      <h1 class="page-title">Explore <em>Complementary Flavours</em></h1>
       <p class="section-label">Choose a category</p>
       <div class="cat-grid" id="cat-grid"></div>
     </div>
@@ -690,7 +690,7 @@ const DATA = {
       "Mussels": ["Butter","Chilli","Cider","Cream","Garlic","Lemon","Parsley","Saffron","Shallot","Tarragon","Tomato","White Wine"],
       "Octopus": ["Capers","Chilli","Garlic","Lemon","Olive Oil","Paprika","Parsley","Red Wine","Tomato","Vinegar"],
       "Oysters": ["Champagne","Chilli","Cream","Cucumber","Dill","Horseradish","Lemon","Shallot","Tabasco","Vinegar"],
-      "Pink Fish": ["Avocado","Beetroot","Capers","Cream Cheese","Cucumber","Dill","Honey","Horseradish","Lemon","Lime","Onion","Potato"],
+      "Oily / Pink Fish": ["Avocado","Beetroot","Capers","Cream Cheese","Cucumber","Dill","Honey","Horseradish","Lemon","Lime","Onion","Potato"],
       "Shrimp": ["Avocado","Butter","Chilli","Cocktail Sauce","Coriander","Dill","Garlic","Lemon","Lime","Paprika","Tomato"],
       "Smoked Fish": ["Beetroot","Capers","Cream Cheese","Dill","Egg","Horseradish","Lemon","Mustard","Onion","Potato"],
       "Squid": ["Aioli","Chilli","Coriander","Cumin","Garlic","Ink","Lemon","Lime","Paprika","Parsley","Tomato"],
@@ -717,8 +717,10 @@ const DATA = {
       "Beetroot": ["Balsamic","Dill","Duck","Goat Cheese","Horseradish","Orange","Scallops","Soft Cheese","Vinegar","Walnut"],
       "Carrot": ["Coriander","Cumin","Ginger","Honey","Lemon","Mango","Mild Cheese","Orange","Thyme"],
       "Potato": ["Bacon","Butter","Cheese","Chive","Cream","Garlic","Leek","Onion","Rosemary","Smoked Fish","Sour Cream","Thyme"],
+      "Radish": ["Butter","Chilli","Cucumber","Dill","Fish Sauce","Lemon","Miso","Sesame","Soy Sauce","Vinegar"],
       "Sweet Potato": ["Butter","Chilli","Chipotle","Cinnamon","Coconut","Ginger","Goat Cheese","Honey","Lime","Maple Syrup","Pecan"],
       "Turnip": ["Butter","Chicken","Clove","Cream","Fennel","Garlic","Nutmeg","Potato","Thyme"],
+      "Yam": ["Brown Sugar","Butter","Cinnamon","Coconut","Ginger","Honey","Lime","Nutmeg","Pecan","Thyme"],
     }
   },
   "Greens & Salad": {
@@ -757,20 +759,25 @@ const DATA = {
   "Asian Cuisine": {
     color: '#e8845a',
     items: {
+      "Aubergine (Asian)": ["Chilli","Fish Sauce","Garlic","Ginger","Miso","Sesame","Soy Sauce","Spring Onion","Thai Basil"],
       "Beef (Asian)": ["Chilli","Fish Sauce","Garlic","Ginger","Hoisin","Lemongrass","Lime","Oyster Sauce","Sesame","Soy Sauce","Spring Onion","Star Anise"],
+      "Bok Choy": ["Chilli","Fish Sauce","Garlic","Ginger","Oyster Sauce","Sesame","Soy Sauce","Spring Onion"],
       "Chicken (Asian)": ["Chilli","Coconut Milk","Fish Sauce","Galangal","Garlic","Ginger","Kaffir Lime","Lemongrass","Oyster Sauce","Sesame","Soy Sauce","Turmeric"],
-      "Tofu": ["Chilli","Garlic","Ginger","Miso","Mushroom","Sesame","Soy Sauce","Spring Onion","Sriracha","Tahini","Yuzu"],
+      "Cod (Asian)": ["Bok Choy","Chilli","Ginger","Mirin","Miso","Rice Wine","Sesame","Soy Sauce","Spring Onion"],
       "Duck (Asian)": ["Chinese Five Spice","Garlic","Ginger","Hoisin","Mandarin","Plum Sauce","Sesame","Soy Sauce","Spring Onion","Star Anise"],
+      "Egg (Asian)": ["Chilli Oil","Dashi","Fish Sauce","Garlic","Mirin","Sesame","Soy Sauce","Spring Onion"],
+      "Lamb (Asian)": ["Chilli","Cumin","Garlic","Ginger","Soy Sauce","Spring Onion","Star Anise","Yogurt"],
+      "Mackerel (Asian)": ["Chilli","Daikon","Garlic","Ginger","Mirin","Miso","Rice Wine","Sesame","Soy Sauce","Spring Onion","Yuzu"],
+      "Mushroom (Asian)": ["Bamboo Shoots","Bok Choy","Garlic","Ginger","Mirin","Miso","Sesame","Soy Sauce","Spring Onion","Tofu"],
+      "Noodles": ["Bok Choy","Chilli","Fish Sauce","Garlic","Ginger","Mushroom","Sesame","Soy Sauce","Spring Onion","Tofu"],
       "Pork (Asian)": ["Chilli","Chinese Five Spice","Fish Sauce","Garlic","Ginger","Hoisin","Miso","Rice Wine","Sesame","Soy Sauce","Star Anise"],
       "Prawn (Asian)": ["Chilli","Fish Sauce","Galangal","Garlic","Ginger","Kaffir Lime","Lemongrass","Lime","Sesame","Soy Sauce","Tamarind"],
-      "Salmon (Asian)": ["Ginger","Mirin","Miso","Rice Wine Vinegar","Sesame","Soy Sauce","Spring Onion","Wasabi","Yuzu"],
-      "Lamb (Asian)": ["Chilli","Cumin","Garlic","Ginger","Soy Sauce","Spring Onion","Star Anise","Yogurt"],
-      "Egg (Asian)": ["Chilli Oil","Dashi","Fish Sauce","Garlic","Mirin","Sesame","Soy Sauce","Spring Onion"],
-      "Noodles": ["Bok Choy","Chilli","Fish Sauce","Garlic","Ginger","Mushroom","Sesame","Soy Sauce","Spring Onion","Tofu"],
       "Rice": ["Chilli","Egg","Fish Sauce","Garlic","Ginger","Mushroom","Sesame","Soy Sauce","Spring Onion","Turmeric"],
-      "Aubergine (Asian)": ["Chilli","Fish Sauce","Garlic","Ginger","Miso","Sesame","Soy Sauce","Spring Onion","Thai Basil"],
-      "Mushroom (Asian)": ["Bamboo Shoots","Bok Choy","Garlic","Ginger","Mirin","Miso","Sesame","Soy Sauce","Spring Onion","Tofu"],
-      "Bok Choy": ["Chilli","Fish Sauce","Garlic","Ginger","Oyster Sauce","Sesame","Soy Sauce","Spring Onion"],
+      "Salmon (Asian)": ["Ginger","Mirin","Miso","Rice Wine Vinegar","Sesame","Soy Sauce","Spring Onion","Wasabi","Yuzu"],
+      "Sea Bass (Asian)": ["Chilli","Coriander","Ginger","Lemongrass","Lime","Sesame Oil","Soy Sauce","Spring Onion","Thai Basil"],
+      "Snapper (Asian)": ["Chilli","Coriander","Fish Sauce","Galangal","Garlic","Kaffir Lime","Lemongrass","Lime","Tamarind","Thai Basil"],
+      "Tofu": ["Chilli","Garlic","Ginger","Miso","Mushroom","Sesame","Soy Sauce","Spring Onion","Sriracha","Tahini","Yuzu"],
+      "Tuna (Asian)": ["Avocado","Ginger","Mirin","Miso","Rice Wine Vinegar","Sesame","Soy Sauce","Spring Onion","Wasabi","Yuzu"],
     }
   },
   Meat: {
@@ -832,7 +839,7 @@ const SUB_DESCRIPTIONS = {
   'Mussels': 'Mild, slightly sweet bivalves that steam quickly and soak up broths beautifully.',
   'Octopus': 'Tender when slow-cooked, with a mild, slightly sweet flavour and meaty texture.',
   'Oysters': 'Briny bivalves with a clean oceanic flavour — eaten raw, grilled, or poached.',
-  'Pink Fish': 'Rich, oily fish with a distinctive flavour and firm, flaky flesh. e.g. salmon, trout, arctic char.',
+  'Oily / Pink Fish': 'Rich, oily fish with a distinctive flavour and firm, flaky flesh. e.g. salmon, trout, arctic char.',
   'Shrimp': 'Versatile crustaceans with sweet, mild flavour — quick-cooking and widely used.',
   'Smoked Fish': 'Fish cured by smoking, giving a deep, savoury flavour and silky texture.',
   'Squid': 'Mild, slightly sweet seafood with a tender texture when cooked quickly or slow-braised.',
@@ -851,7 +858,9 @@ const SUB_DESCRIPTIONS = {
   'Beetroot': 'Sweet, earthy root vegetable with a vivid colour and naturally sweet flavour.',
   'Carrot': 'Sweet, crunchy root vegetable that becomes tender and caramelised when cooked.',
   'Potato': 'Starchy, versatile root — roasted, mashed, boiled, or fried to great effect.',
+  'Radish': 'Crisp, peppery root — sharp raw, mellow and sweet when roasted or pickled.',
   'Sweet Potato': 'Naturally sweet, dense root vegetable with a vibrant orange flesh.',
+  'Yam': 'Starchy, earthy tuber with a drier texture than sweet potato — common in African, Caribbean, and Asian cuisines.',
   'Turnip': 'Mildly peppery root vegetable that mellows and sweetens with cooking.',
   // Greens & Salad
   'Alfalfa': 'Delicate, grassy sprouts with a mild flavour — best used fresh in salads and wraps.',
@@ -892,6 +901,11 @@ const SUB_DESCRIPTIONS = {
   'Aubergine (Asian)': 'Silky when roasted or wok-fried, absorbing garlic, ginger, and miso beautifully.',
   'Mushroom (Asian)': 'Earthy, umami-rich — shiitake, enoki, and king oyster are kitchen staples.',
   'Bok Choy': 'Crisp, mild Chinese cabbage — quick to cook and excellent with garlic and oyster sauce.',
+  'Cod (Asian)': 'Mild, flaky white fish that absorbs miso and soy marinades beautifully.',
+  'Mackerel (Asian)': 'Rich, oily fish popular in Japanese cuisine — grilled with miso or soy.',
+  'Sea Bass (Asian)': 'Delicate, sweet fish — classic steamed whole with ginger and spring onion.',
+  'Snapper (Asian)': 'Firm, sweet white fish widely used in Thai and Southeast Asian cooking.',
+  'Tuna (Asian)': 'Lean, meaty fish — best served raw as sashimi or seared with sesame and soy.',
   // Meat
   'All Meat': 'Universal flavour builders that enhance any cut — the essentials of meat cookery.',
   'Bacon': 'Salt-cured, smoked pork belly with a rich, salty, smoky flavour.',
@@ -907,7 +921,7 @@ const SUB_EXAMPLES = {
   // Asian
   'Noodles': 'e.g. ramen, udon, soba, rice noodles, glass noodles',
   'Mushroom (Asian)': 'e.g. shiitake, enoki, oyster, king oyster',
-  'Pink Fish': 'e.g. salmon, trout, arctic char',
+  'Oily / Pink Fish': 'e.g. salmon, trout, arctic char',
   'White Fish': 'e.g. cod, haddock, sea bass, sole',
   'Game': 'e.g. venison, pheasant, partridge, grouse',
 };
@@ -991,6 +1005,7 @@ function addToList() {
   updateAddBtn();
   renderIngs();
   updateBadge();
+  saveList();
   showToast(`${added} added to list`);
 }
 
@@ -1050,10 +1065,27 @@ function renderList() {
   });
 }
 
+function saveList() {
+  try {
+    localStorage.setItem('tb_shopList', JSON.stringify(shopList));
+    localStorage.setItem('tb_doneItems', JSON.stringify([...doneItems]));
+  } catch(e) {}
+}
+
+function loadList() {
+  try {
+    var s = localStorage.getItem('tb_shopList');
+    var d = localStorage.getItem('tb_doneItems');
+    if (s) shopList = JSON.parse(s);
+    if (d) doneItems = new Set(JSON.parse(d));
+  } catch(e) {}
+}
+
 function toggleDone(name) {
   if (doneItems.has(name)) doneItems.delete(name);
   else doneItems.add(name);
   // Just flip the class on the existing row — no full re-render
+  saveList();
   document.querySelectorAll('.list-item').forEach(function(row) {
     if (row.querySelector('.list-item-name') && row.querySelector('.list-item-name').textContent === name) {
       row.classList.toggle('done', doneItems.has(name));
@@ -1063,8 +1095,10 @@ function toggleDone(name) {
 
 function removeItem(name) {
   shopList = shopList.filter(i => i.name !== name);
+  doneItems.delete(name);
   renderList();
   updateBadge();
+  saveList();
 }
 
 let clearPending = false;
@@ -1095,6 +1129,7 @@ function clearList() {
   doneItems.clear();
   renderList();
   updateBadge();
+  saveList();
 }
 
 function copyList() {
@@ -1438,10 +1473,11 @@ function renderFridgeResults() {
     card.appendChild(topRow);
     card.appendChild(catLabel);
     card.appendChild(pills);
-    card.onclick = (function(s) { return function() {
-      selCat = s.cat; selColor = s.color; selSub = s.sub; checked = new Set();
+    card.onclick = (function(s, fridgeLower) { return function() {
+      selCat = s.cat; selColor = s.color; selSub = s.sub;
+      checked = new Set(s.ings.filter(function(i) { return fridgeLower.has(i.toLowerCase()); }));
       goToIng();
-    }; })(s);
+    }; })(s, fridgeLower);
     el.appendChild(card);
   });
 }
@@ -1451,7 +1487,7 @@ function renderFridgeResults() {
 // ── Aliases: common names -> subcategory ──────────────
 const SUB_ALIASES = {
   // Pink Fish
-  'salmon': 'Pink Fish', 'trout': 'Pink Fish', 'arctic char': 'Pink Fish',
+  'salmon': 'Oily / Pink Fish', 'trout': 'Oily / Pink Fish', 'arctic char': 'Oily / Pink Fish',
   // White Fish
   'cod': 'White Fish', 'haddock': 'White Fish', 'sea bass': 'White Fish',
   'sole': 'White Fish', 'halibut': 'White Fish', 'plaice': 'White Fish',
@@ -1534,6 +1570,7 @@ function showToast(msg) {
 }
 
 // ── Init ──
+loadList();
 renderCats();
 document.getElementById('btn-explore').classList.add('active');
 updateExploreBtn();
