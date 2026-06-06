@@ -192,7 +192,7 @@
   .sub-item {
     display: flex;
     align-items: center;
-    padding: 13px 14px;
+    padding: 15px 14px;
     background: var(--bg2);
     border: 1px solid var(--line);
     border-radius: var(--r);
@@ -248,7 +248,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 14px;
+    padding: 14px 14px;
     background: var(--bg2);
     border: 1px solid var(--line);
     border-radius: var(--r);
@@ -339,7 +339,7 @@
   #header-left { display: flex; align-items: center; gap: 10px; }
   #header-back {
     background: none; border: none; cursor: pointer;
-    width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
     flex-shrink: 0; padding: 0;
     -webkit-tap-highlight-color: transparent;
   }
@@ -347,14 +347,14 @@
   .header-actions { display: flex; align-items: center; gap: 4px; }
   .header-icon-btn {
     background: none; border: none; cursor: pointer;
-    width: 40px; height: 40px;
+    width: 44px; height: 44px;
     display: flex; align-items: center; justify-content: center;
     border-radius: var(--r);
     -webkit-tap-highlight-color: transparent;
     transition: background 0.12s;
     position: relative;
   }
-  .header-icon-btn svg { width: 20px; height: 20px; stroke: var(--muted); transition: stroke 0.15s; }
+  .header-icon-btn svg { width: 22px; height: 22px; stroke: var(--muted); transition: stroke 0.15s; }
   .header-icon-btn.active svg { stroke: var(--accent); }
   @media (hover: hover) { .header-icon-btn:hover { background: var(--bg2); } }
   .nav-badge {
@@ -595,7 +595,7 @@
           </svg>
         </button>
         <div id="header-logo">
-          <div class="logo">Taste<em>Buds</em></div>
+          <div class="logo" onclick="openAbout()" style="cursor:pointer;">Taste<em>Buds</em><button onclick="openAbout()" style="background:none;border:1.5px solid rgba(240,234,216,0.35);border-radius:50%;width:17px;height:17px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;vertical-align:middle;margin-left:6px;position:relative;top:-2px;-webkit-tap-highlight-color:transparent;"><svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="var(--cream)" stroke-width="1.6" stroke-linecap="round"><line x1="5" y1="4.5" x2="5" y2="8"/><circle cx="5" cy="2.5" r=".7" fill="var(--cream)" stroke="none"/></svg></button></div>
         </div>
       </div>
       <div class="header-actions">
@@ -698,6 +698,18 @@
     </div>
   </div>
 
+  <!-- About modal -->
+  <div id="about-modal" style="display:none; position:fixed; inset:0; z-index:200; align-items:flex-end; justify-content:center;">
+    <div id="modal-backdrop" onclick="closeAbout()" style="position:absolute; inset:0; background:rgba(0,0,0,0.6);"></div>
+    <div id="modal-sheet" style="position:relative; width:100%; max-width:480px; background:var(--bg2); border-radius:12px 12px 0 0; padding:28px 24px 40px; border-top:1px solid var(--line2); transform:translateY(100%); transition:transform 0.3s cubic-bezier(0.32,0.72,0,1);">
+      <div style="width:36px; height:4px; background:var(--line2); border-radius:2px; margin:0 auto 24px;"></div>
+      <h2 style="font-family:var(--serif); font-size:22px; color:var(--cream); margin-bottom:16px; line-height:1.1;">About <em style="color:var(--accent); font-style:italic;">TasteBuds</em></h2>
+      <p style="font-size:14px; color:var(--muted); line-height:1.75; margin-bottom:16px;">TasteBuds is a flavour pairing guide — not a recipe book. It's here to point you in the right direction, not tell you exactly what to do. Think of it as a compass for your cooking intuition.</p>
+      <p style="font-size:14px; color:var(--muted); line-height:1.75; margin-bottom:16px;">By choosing ingredients that complement each other, you can almost guarantee that your meal won't taste off, flat, or just plain weird. The combinations here are time-tested — they work because flavours that share aromatic compounds or contrasting profiles tend to bring out the best in each other.</p>
+      <p style="font-size:14px; color:var(--muted); line-height:1.75;">One last thing — don't forget the basics. Salt, pepper, acid (a squeeze of lemon or a splash of vinegar), and a good fat (butter or olive oil) are the foundation of almost every great dish. Get those right, and the rest will follow.</p>
+      <button onclick="closeAbout()" style="margin-top:24px; width:100%; padding:14px; background:var(--bg3); border:1px solid var(--line2); border-radius:var(--r); color:var(--cream); font-family:var(--serif); font-size:16px; cursor:pointer; letter-spacing:0.01em;">Got it</button>
+    </div>
+  </div>
 
 </div>
 
@@ -710,30 +722,39 @@ const DATA = {
     items: {
       "Caviar": ["Blinis","Buckwheat","Butter","Champagne","Chive","Cream","Egg","Lemon","Onion","Sour Cream"],
       "Clams": ["Avocado","Butter","Chilli","Chorizo","Cider","Coriander","Cream","Garlic","Lemon","Parsley","Pasta","Shallot","Tarragon","Tomato","White Wine"],
+      "Cod (Asian)": ["Bok Choy","Chilli","Ginger","Mirin","Miso","Rice Wine","Sesame","Soy Sauce","Spring Onion"],
       "Crab": ["Avocado","Butter","Chilli","Chive","Cider","Cream","Cucumber","Dill","Garlic","Lemon","Lime","Mayonnaise","Parsley","Saffron","Shallot","Tarragon","Tomato","White Wine"],
       "Lobster": ["Avocado","Brandy","Butter","Chilli","Coriander","Cream","Garlic","Lemon","Parsley","Shallot","Tarragon","Tomato","Truffle","White Wine"],
+      "Mackerel (Asian)": ["Chilli","Daikon","Garlic","Ginger","Mirin","Miso","Rice Wine","Sesame","Soy Sauce","Spring Onion","Yuzu"],
       "Mussels": ["Butter","Chilli","Cider","Coconut Milk","Cream","Garlic","Lemon","Lemongrass","Parsley","Saffron","Shallot","Tarragon","Tomato","White Wine"],
       "Octopus": ["Capers","Chilli","Chorizo","Garlic","Lemon","Olive Oil","Paprika","Parsley","Potato","Red Wine","Tomato","Vinegar"],
-      "Oysters": ["Champagne","Chilli","Cream","Cucumber","Dill","Horseradish","Lemon","Mignonette","Shallot","Tabasco","Vinegar"],
       "Oily / Pink Fish": ["Asparagus","Avocado","Beetroot","Capers","Cream Cheese","Cucumber","Dill","Fennel","Honey","Horseradish","Lemon","Lime","Onion","Potato","Sorrel"],
+      "Oysters": ["Champagne","Chilli","Cream","Cucumber","Dill","Horseradish","Lemon","Mignonette","Shallot","Tabasco","Vinegar"],
+      "Prawn (Asian)": ["Chilli","Fish Sauce","Galangal","Garlic","Ginger","Kaffir Lime","Lemongrass","Lime","Sesame","Soy Sauce","Tamarind"],
+      "Salmon (Asian)": ["Ginger","Mirin","Miso","Rice Wine Vinegar","Sesame","Soy Sauce","Spring Onion","Wasabi","Yuzu"],
+      "Sea Bass (Asian)": ["Chilli","Coriander","Ginger","Lemongrass","Lime","Sesame Oil","Soy Sauce","Spring Onion","Thai Basil"],
       "Shrimp": ["Avocado","Butter","Chilli","Cocktail Sauce","Coconut","Coriander","Dill","Garlic","Lemon","Lime","Mango","Old Bay","Paprika","Tomato"],
       "Smoked Fish": ["Apple","Beetroot","Capers","Cream Cheese","Crème Fraîche","Dill","Egg","Horseradish","Lemon","Mustard","Onion","Potato"],
+      "Snapper (Asian)": ["Chilli","Coriander","Fish Sauce","Galangal","Garlic","Kaffir Lime","Lemongrass","Lime","Tamarind","Thai Basil"],
       "Squid": ["Aioli","Chilli","Chorizo","Coriander","Cumin","Garlic","Ink","Lemon","Lime","Paprika","Parsley","Tomato"],
       "Sushi": ["Avocado","Cucumber","Ginger","Lime","Pickled Daikon","Rice Wine Vinegar","Sesame","Soy Sauce","Wasabi"],
+      "Tuna (Asian)": ["Avocado","Ginger","Mirin","Miso","Rice Wine Vinegar","Sesame","Soy Sauce","Spring Onion","Wasabi","Yuzu"],
       "White Fish": ["Basil","Brown Butter","Butter","Capers","Chilli","Cream","Dill","Garlic","Lemon","Mild Cheese","Mozzarella","Onion","Parsley","Pea","Potato","Spinach","Tomato"],
-    }
+        }
   },
   Poultry: {
     color: '#d4884a',
     items: {
       "Chicken": ["Coconut","Coriander","Cream","Garlic","Lemon","Mushroom","Mustard","Onion","Paprika","Potato","Raisins","Rosemary","Sage","Tarragon","Thyme","Tomato","White Wine"],
+      "Chicken (Asian)": ["Chilli","Coconut Milk","Fish Sauce","Galangal","Garlic","Ginger","Kaffir Lime","Lemongrass","Miso","Oyster Sauce","Sesame","Soy Sauce","Turmeric"],
       "Duck": ["Cherry","Ginger","Hoisin","Honey","Lemon","Mint","Onion","Orange","Plum","Port","Potato","Red Wine","Soy","Thyme","Turnip"],
+      "Duck (Asian)": ["Chinese Five Spice","Garlic","Ginger","Hoisin","Mandarin","Plum Sauce","Sesame","Soy Sauce","Spring Onion","Star Anise"],
       "Game": ["Bacon","Celeriac","Chestnut","Chocolate","Cream","Juniper","Mushroom","Orange","Red Wine","Redcurrant","Rosemary","Thyme"],
       "Goose": ["Apple","Chestnut","Cranberry","Garlic","Onion","Orange","Port","Prune","Red Cabbage","Sage","Thyme"],
       "Ostrich": ["Garlic","Lemon","Mild Cheese","Mozzarella","Mustard","Pepper","Red Wine","Rosemary","Thyme","Tomato"],
       "Pigeon": ["Beetroot","Cherry","Garlic","Lemon","Lentil","Mint","Onion","Pea","Potato","Red Wine","Thyme"],
       "Turkey": ["Bacon","Butter","Chestnut","Cranberry","Garlic","Gravy","Lemon","Onion","Rosemary","Sage","Stuffing","Thyme"],
-    }
+        }
   },
   "Root Vegetable": {
     color: '#6ab87a',
@@ -781,28 +802,15 @@ const DATA = {
     }
   },
 
-  "Asian Cuisine": {
+    "Asian Staples": {
     color: '#e8845a',
     items: {
-      "Aubergine (Asian)": ["Chilli","Fish Sauce","Garlic","Ginger","Miso","Sesame","Soy Sauce","Spring Onion","Thai Basil"],
-      "Beef (Asian)": ["Chilli","Fish Sauce","Garlic","Ginger","Hoisin","Lemongrass","Lime","Oyster Sauce","Sesame","Soy Sauce","Spring Onion","Star Anise","Wasabi"],
       "Bok Choy": ["Chilli","Fish Sauce","Garlic","Ginger","Oyster Sauce","Sesame","Soy Sauce","Spring Onion"],
-      "Chicken (Asian)": ["Chilli","Coconut Milk","Fish Sauce","Galangal","Garlic","Ginger","Kaffir Lime","Lemongrass","Miso","Oyster Sauce","Sesame","Soy Sauce","Turmeric"],
-      "Cod (Asian)": ["Bok Choy","Chilli","Ginger","Mirin","Miso","Rice Wine","Sesame","Soy Sauce","Spring Onion"],
-      "Duck (Asian)": ["Chinese Five Spice","Garlic","Ginger","Hoisin","Mandarin","Plum Sauce","Sesame","Soy Sauce","Spring Onion","Star Anise"],
       "Egg (Asian)": ["Chilli Oil","Dashi","Fish Sauce","Garlic","Mirin","Sesame","Soy Sauce","Spring Onion"],
-      "Lamb (Asian)": ["Chilli","Cumin","Garlic","Ginger","Soy Sauce","Spring Onion","Star Anise","Yogurt"],
-      "Mackerel (Asian)": ["Chilli","Daikon","Garlic","Ginger","Mirin","Miso","Rice Wine","Sesame","Soy Sauce","Spring Onion","Yuzu"],
       "Mushroom (Asian)": ["Bamboo Shoots","Bok Choy","Garlic","Ginger","Mirin","Miso","Sesame","Soy Sauce","Spring Onion","Tofu"],
       "Noodles": ["Bok Choy","Chilli","Dashi","Fish Sauce","Garlic","Ginger","Mushroom","Sesame","Soy Sauce","Spring Onion","Tofu"],
-      "Pork (Asian)": ["Chilli","Chinese Five Spice","Fish Sauce","Garlic","Ginger","Hoisin","Miso","Rice Wine","Sesame","Soy Sauce","Star Anise"],
-      "Prawn (Asian)": ["Chilli","Fish Sauce","Galangal","Garlic","Ginger","Kaffir Lime","Lemongrass","Lime","Sesame","Soy Sauce","Tamarind"],
       "Rice": ["Chilli","Egg","Fish Sauce","Garlic","Ginger","Mushroom","Sesame","Soy Sauce","Spring Onion","Turmeric","Vinegar"],
-      "Salmon (Asian)": ["Ginger","Mirin","Miso","Rice Wine Vinegar","Sesame","Soy Sauce","Spring Onion","Wasabi","Yuzu"],
-      "Sea Bass (Asian)": ["Chilli","Coriander","Ginger","Lemongrass","Lime","Sesame Oil","Soy Sauce","Spring Onion","Thai Basil"],
-      "Snapper (Asian)": ["Chilli","Coriander","Fish Sauce","Galangal","Garlic","Kaffir Lime","Lemongrass","Lime","Tamarind","Thai Basil"],
       "Tofu": ["Chilli","Chilli Oil","Garlic","Ginger","Miso","Mushroom","Sesame","Soy Sauce","Spring Onion","Sriracha","Tahini","Yuzu"],
-      "Tuna (Asian)": ["Avocado","Ginger","Mirin","Miso","Rice Wine Vinegar","Sesame","Soy Sauce","Spring Onion","Wasabi","Yuzu"],
     }
   },
   Meat: {
@@ -811,12 +819,15 @@ const DATA = {
       "All Meat": ["Bay","Cream","Garlic","Mushroom","Mustard","Onion","Pepper","Red Wine","Rosemary","Salt","Thyme"],
       "Bacon": ["Avocado","Cheese","Egg","Lentils","Maple Syrup","Mushroom","Mustard","Thyme","Tomato"],
       "Beef": ["Anchovy","Bone Marrow","Cream","Garlic","Horseradish","Mushroom","Mustard","Paprika","Parsley","Parsnip","Pepper","Red Wine","Thyme"],
+      "Beef (Asian)": ["Chilli","Fish Sauce","Garlic","Ginger","Hoisin","Lemongrass","Lime","Oyster Sauce","Sesame","Soy Sauce","Spring Onion","Star Anise","Wasabi"],
       "Kidneys": ["Bacon","Butter","Cream","Mushroom","Mustard","Parsley","Port","Red Wine","Shallot","Thyme"],
+      "Lamb (Asian)": ["Chilli","Cumin","Garlic","Ginger","Soy Sauce","Spring Onion","Star Anise","Yogurt"],
       "Liver": ["Allspice","Apple","Bacon","Balsamic","Butter","Caramelised Onion","Cream","Onion","Sage"],
       "Pork": ["Apple","Balsamic","Chilli","Cream","Fennel","Garlic","Ginger","Honey","Mustard","Prune","Sage","Soy Sauce","Thyme"],
+      "Pork (Asian)": ["Chilli","Chinese Five Spice","Fish Sauce","Garlic","Ginger","Hoisin","Miso","Rice Wine","Sesame","Soy Sauce","Star Anise"],
       "Rabbit": ["Bacon","Cream","Garlic","Lemon","Mushroom","Mustard","Olives","Onion","Rosemary","Thyme","White Wine"],
       "Veal": ["Anchovy","Butter","Capers","Cream","Lemon","Marsala","Mushroom","Nutmeg","Parsley","Sage","Thyme","Tuna"],
-    }
+        }
   },
 };
 
@@ -834,7 +845,7 @@ const CAT_EMOJI = {
   'Root Vegetable': '🥕',
   'Greens & Salad': '🥗',
   'Bulbous Stem Vegetable': '🧅',
-  'Asian Cuisine': '🍜',
+  'Asian Staples': '🍜',
   Meat: '🥩',
 };
 
@@ -1871,6 +1882,22 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── About modal ──
+function openAbout() {
+  var modal = document.getElementById('about-modal');
+  var sheet = document.getElementById('modal-sheet');
+  modal.style.display = 'flex';
+  setTimeout(function() { sheet.style.transform = 'translateY(0)'; }, 10);
+}
+
+function closeAbout() {
+  var sheet = document.getElementById('modal-sheet');
+  sheet.style.transform = 'translateY(100%)';
+  setTimeout(function() {
+    document.getElementById('about-modal').style.display = 'none';
+  }, 300);
 }
 
 // ── Init ──
