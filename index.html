@@ -707,7 +707,16 @@
       <p style="font-size:14px; color:var(--muted); line-height:1.75; margin-bottom:16px;">TasteBuds is a flavour pairing guide — not a recipe book. It's here to point you in the right direction, not tell you exactly what to do. Think of it as a compass for your cooking intuition.</p>
       <p style="font-size:14px; color:var(--muted); line-height:1.75; margin-bottom:16px;">By choosing ingredients that complement each other, you can almost guarantee that your meal won't taste off, flat, or just plain weird. The combinations here are time-tested — they work because flavours that share aromatic compounds or contrasting profiles tend to bring out the best in each other.</p>
       <p style="font-size:14px; color:var(--muted); line-height:1.75;">One last thing — don't forget the basics. Salt, pepper, acid (a squeeze of lemon or a splash of vinegar), and a good fat (butter or olive oil) are the foundation of almost every great dish. Get those right, and the rest will follow.</p>
-      <button onclick="closeAbout()" style="margin-top:24px; width:100%; padding:14px; background:var(--bg3); border:1px solid var(--line2); border-radius:var(--r); color:var(--cream); font-family:var(--serif); font-size:16px; cursor:pointer; letter-spacing:0.01em;">Got it</button>
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin-top:20px;">
+        <div>
+          <div style="font-size:14px; color:var(--cream); font-weight:500; margin-bottom:2px;">Halal friendly</div>
+          <div style="font-size:12px; color:var(--muted); line-height:1.4;">Hides alcohol and non-halal ingredients</div>
+        </div>
+        <button id="halal-toggle" onclick="toggleHalal()" role="switch" style="width:44px; height:26px; border-radius:13px; border:none; cursor:pointer; padding:3px; background:var(--bg3); transition:background 0.2s; flex-shrink:0; position:relative; -webkit-tap-highlight-color:transparent;">
+          <div id="halal-knob" style="width:20px; height:20px; border-radius:50%; background:var(--muted); transition:transform 0.2s, background 0.2s;"></div>
+        </button>
+      </div>
+      <button onclick="closeAbout()" style="margin-top:20px; width:100%; padding:14px; background:var(--bg3); border:1px solid var(--line2); border-radius:var(--r); color:var(--cream); font-family:var(--serif); font-size:16px; cursor:pointer; letter-spacing:0.01em;">Got it</button>
     </div>
   </div>
 
@@ -970,6 +979,7 @@ function renderSubs() {
   Object.entries(DATA[selCat].items).forEach(([sub, ings]) => {
     const el = document.createElement('div');
     el.className = 'sub-item' + (selSub === sub ? ' active' : '');
+    if (halalMode && !isHalalSub(sub)) return;
     el.style.setProperty('--cat-color', selColor);
     const example = SUB_EXAMPLES[sub] ? `<div class="sub-example">${SUB_EXAMPLES[sub]}</div>` : '';
     el.innerHTML = `<div class="dot"></div><div class="sub-name-wrap"><div class="sub-name">${sub}</div>${example}</div><div class="sub-n">${ings.length}</div><div class="chevron">›</div>`;
@@ -987,7 +997,7 @@ function renderIngs() {
   descEl.textContent = SUB_DESCRIPTIONS[selSub] || '';
   descEl.style.display = SUB_DESCRIPTIONS[selSub] ? 'block' : 'none';
 
-  const ings = DATA[selCat].items[selSub];
+  const ings = filterHalalIngs(DATA[selCat].items[selSub]);
   ings.forEach(name => {
     const on = checked.has(name);
     const el = document.createElement('div');
@@ -1884,6 +1894,69 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2200);
 }
 
+
+// ── Halal filter ──────────────────────────────────────
+var halalMode = false;
+
+var HARAM_INGREDIENTS = new Set([
+  // Alcohol
+  'white wine','red wine','champagne','cider','port','marsala','brandy',
+  'rice wine','mirin','beer','sake','wine','alcohol','spirits',
+  'balsamic vinegar', // small trace only — kept in for strictness
+  // Pork
+  'bacon','ham','pancetta','lard','prosciutto','salami',
+  'chorizo','pork','pork belly','pork chop','pork ribs',
+  // Other
+  'gelatin'
+]);
+
+var HARAM_SUBS = new Set([
+  'bacon','pork','pork (asian)'
+]);
+
+function isHalalSub(sub) {
+  return !HARAM_SUBS.has(sub.toLowerCase());
+}
+
+function filterHalalIngs(ings) {
+  if (!halalMode) return ings;
+  return ings.filter(function(i) { return !HARAM_INGREDIENTS.has(i.toLowerCase()); });
+}
+
+function toggleHalal() {
+  halalMode = !halalMode;
+  var toggle = document.getElementById('halal-toggle');
+  var knob = document.getElementById('halal-knob');
+  if (halalMode) {
+    toggle.style.background = 'var(--accent)';
+    knob.style.transform = 'translateX(18px)';
+    knob.style.background = '#1a1610';
+  } else {
+    toggle.style.background = 'var(--bg3)';
+    knob.style.transform = 'translateX(0)';
+    knob.style.background = 'var(--muted)';
+  }
+  try { localStorage.setItem('tb_halal', halalMode ? '1' : '0'); } catch(e) {}
+  // Re-render current screen to apply filter
+  if (currentScreen === 'subs') renderSubs();
+  if (currentScreen === 'ings') renderIngs();
+  if (currentScreen === 'cats') renderCats();
+}
+
+function loadHalal() {
+  try {
+    var val = localStorage.getItem('tb_halal');
+    if (val === '1') {
+      halalMode = true;
+      var toggle = document.getElementById('halal-toggle');
+      var knob = document.getElementById('halal-knob');
+      if (toggle) toggle.style.background = 'var(--accent)';
+      if (knob) { knob.style.transform = 'translateX(18px)'; knob.style.background = '#1a1610'; }
+    }
+  } catch(e) {}
+}
+
+
 // ── About modal ──
 function openAbout() {
   var modal = document.getElementById('about-modal');
@@ -1902,6 +1975,7 @@ function closeAbout() {
 
 // ── Init ──
 loadList();
+loadHalal();
 renderCats();
 updateBadge();
 document.getElementById('btn-explore').classList.add('active');
